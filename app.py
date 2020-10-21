@@ -5,12 +5,18 @@ import json
 
 import requests
 import urllib
-
-people = []
+from pathlib import Path
 
 token = "1154340303:AAGUlZi2Y2mMjVL0eshw-Fq-s1BasclugEI"
 url = "https://api.telegram.org/bot" + token + "/"
-prefix = "/"
+prefix = ""
+
+
+def getfile(file):  # Get the absolute path of a file
+    # stackoverflow stuff
+    script_location = Path(__file__).absolute().parent
+    file_location = script_location / file
+    return file_location
 
 
 # Get chat id function
@@ -53,6 +59,26 @@ def command(message, command):
     return False
 
 
+def getlist():
+    with open(getfile("people.txt"), "r") as f:
+        temp = eval(f.read())
+        return temp
+
+
+def append(w):
+    lst = getlist()
+    with open(getfile("people.txt"), "w") as f:
+        lst.append(w)
+        f.write(str(lst))
+
+
+def remove(w):
+    lst = getlist()
+    with open(getfile("people.txt"), "w") as f:
+        lst.remove(w)
+        f.write(str(lst))
+
+
 # Main function
 def main():
     update_id = last_update(url)["update_id"]
@@ -60,22 +86,22 @@ def main():
         update = last_update(url)
         if update_id == update["update_id"]:
             if command(get_message_text(update), "kayit"):
-                if (get_chat_id(update) in people):
+                if get_chat_id(update) in getlist():
                     send_message(get_chat_id(update), "Zaten adınız kayıt listesinde var")
                 else:
-                    people.append(get_chat_id(update))
+                    append(get_chat_id(update))
                     send_message(get_chat_id(update),
-                                 f"""Kaydınız başarıyla oluşturuldu! {get_username(update)}
+                                 f"""Hey {get_username(update)}! Kaydınız başarıyla oluşturuldu.\n
 Kovid19 tablosu açıklandığında size haber vereceğim!"""
                                  )
             if command(get_message_text(update), "cikis"):
-                if (get_chat_id(update) in people):
-                    people.remove(get_chat_id(update))
+                if get_chat_id(update) in getlist():
+                    remove(get_chat_id(update))
                     send_message(get_chat_id(update), "Kaydınız başarıyla silindi!")
                 else:
                     send_message(get_chat_id(update), "Zaten kayıt listesinde değilsiniz")
             if command(get_message_text(update), "people"):
-                send_message(get_chat_id(update), str(people))
+                send_message(get_chat_id(update), str(getlist()))
             update_id += 1
         checkcorona()
         time.sleep(2)
@@ -119,7 +145,7 @@ def checkcorona():
             )
             print("NOW")
             newDay = True
-            for person in people:
+            for person in getlist():
                 send_message(person, message)
             print("Now")
     else:

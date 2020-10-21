@@ -10,7 +10,7 @@ from pathlib import Path
 
 
 
-token = "1232041033:AAHLLOUxgSIgDT4q5qxoZznvM2YvI9wfoXQ"
+token = "1251636046:AAH27SJet4iKo7WeJ2wi-EyNLK88VI7MG5w"
 url = "https://api.telegram.org/bot" + token + "/"
 prefix = ""
 
@@ -83,10 +83,10 @@ def main():
     update_id = last_update(url)["update_id"]
     while True:
         update = last_update(url)
+        print(update_id, update["update_id"])
+
         if update_id == update["update_id"]:
-            print(get_message_text(update))
             if command(get_message_text(update), "kayit"):
-                print("kayit")
                 if get_chat_id(update) in getlist():
                     send_message(get_chat_id(update), "Zaten adınız kayıt listesinde var")
                 else:
@@ -96,20 +96,17 @@ def main():
 Kovid19 tablosu açıklandığında size haber vereceğim!"""
                                  )
             if command(get_message_text(update), "cikis"):
-                print("cikis")
                 if get_chat_id(update) in getlist():
                     remove(get_chat_id(update))
                     send_message(get_chat_id(update), "Kaydınız başarıyla silindi!")
                 else:
                     send_message(get_chat_id(update), "Zaten kayıt listesinde değilsiniz")
-            if command(get_message_text(update), "people"):
-                print("people")
+            if command(get_message_text(update), "pp"):
                 send_message(get_chat_id(update), str(getlist()))
-
 
             update_id += 1
         checkcorona()
-        time.sleep(0.1)
+        time.sleep(0.09)
 
 
 def gethtml(url):
@@ -170,7 +167,8 @@ Saygılarımla'''
                 send_message(person, message)
             print("Now")
     else:
-        print("Not now")
+        pass
+        #print("Not now")
 
 
 main()

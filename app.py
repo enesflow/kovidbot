@@ -7,7 +7,7 @@ import requests
 import urllib
 from pathlib import Path
 
-token = "1154340303:AAGUlZi2Y2mMjVL0eshw-Fq-s1BasclugEI"
+token = "1232041033:AAHLLOUxgSIgDT4q5qxoZznvM2YvI9wfoXQ"
 url = "https://api.telegram.org/bot" + token + "/"
 prefix = ""
 
@@ -54,9 +54,8 @@ def send_message(chat_id, message_text):
 
 
 def command(message, command):
-    for i in command:
-        if message.lower() == prefix + i:
-            return True
+    if message.lower() == prefix + command:
+        return True
     return False
 
 
@@ -86,7 +85,9 @@ def main():
     while True:
         update = last_update(url)
         if update_id == update["update_id"]:
-            if command(get_message_text(update), ["kayit", "katil", "giris", "gir"]):
+            print(get_message_text(update))
+            if command(get_message_text(update), "kayit"):
+                print("kayit")
                 if get_chat_id(update) in getlist():
                     send_message(get_chat_id(update), "Zaten adınız kayıt listesinde var")
                 else:
@@ -95,22 +96,42 @@ def main():
                                  f"""Hey {get_username(update)}! Kaydınız başarıyla oluşturuldu.\n
 Kovid19 tablosu açıklandığında size haber vereceğim!"""
                                  )
-            if command(get_message_text(update), ["cikis", "ayril", "cik"]):
+            if command(get_message_text(update), "cikis"):
+                print("cikis")
                 if get_chat_id(update) in getlist():
                     remove(get_chat_id(update))
                     send_message(get_chat_id(update), "Kaydınız başarıyla silindi!")
                 else:
                     send_message(get_chat_id(update), "Zaten kayıt listesinde değilsiniz")
-            if command(get_message_text(update), ["people", "kullanicilar", "insanlar"]):
+            if command(get_message_text(update), "people"):
+                print("people")
                 send_message(get_chat_id(update), str(getlist()))
+
+
             update_id += 1
-        checkcorona()
-        time.sleep(2)
+        #checkcorona()
+        time.sleep(0.75)
 
 
 def gethtml(url):
     thesite = urllib.request.urlopen(url).read()
     return thesite.decode("utf8")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def checkcorona():

@@ -54,8 +54,9 @@ def send_message(chat_id, message_text):
 
 
 def command(message, command):
-    if message.lower() == prefix + command:
-        return True
+    for i in command:
+        if message.lower() == prefix + i:
+            return True
     return False
 
 
@@ -85,7 +86,7 @@ def main():
     while True:
         update = last_update(url)
         if update_id == update["update_id"]:
-            if command(get_message_text(update), "kayit"):
+            if command(get_message_text(update), ["kayit", "katil", "giris", "gir"]):
                 if get_chat_id(update) in getlist():
                     send_message(get_chat_id(update), "Zaten adınız kayıt listesinde var")
                 else:
@@ -94,7 +95,7 @@ def main():
                                  f"""Hey {get_username(update)}! Kaydınız başarıyla oluşturuldu.\n
 Kovid19 tablosu açıklandığında size haber vereceğim!"""
                                  )
-            if command(get_message_text(update), "cikis"):
+            if command(get_message_text(update), ["cikis", "ayril", "cik"]):
                 if get_chat_id(update) in getlist():
                     remove(get_chat_id(update))
                     send_message(get_chat_id(update), "Kaydınız başarıyla silindi!")

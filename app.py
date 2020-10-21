@@ -7,6 +7,11 @@ import requests
 import urllib
 from pathlib import Path
 
+
+
+with open(getfile("people.txt"), "r") as f:
+    temp = eval(f.read())
+
 token = "1232041033:AAHLLOUxgSIgDT4q5qxoZznvM2YvI9wfoXQ"
 url = "https://api.telegram.org/bot" + token + "/"
 prefix = ""
@@ -60,23 +65,15 @@ def command(message, command):
 
 
 def getlist():
-    with open(getfile("people.txt"), "r") as f:
-        temp = eval(f.read())
-        return temp
+    return temp
 
 
 def append(w):
-    lst = getlist()
-    with open(getfile("people.txt"), "w") as f:
-        lst.append(w)
-        f.write(str(lst))
+    temp.append(w)
 
 
 def remove(w):
-    lst = getlist()
-    with open(getfile("people.txt"), "w") as f:
-        lst.remove(w)
-        f.write(str(lst))
+    temp.remove(w)
 
 
 # Main function

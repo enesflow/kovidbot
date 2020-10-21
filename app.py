@@ -109,7 +109,7 @@ Kovid19 tablosu açıklandığında size haber vereceğim!"""
 
 
             update_id += 1
-        #checkcorona()
+        checkcorona()
         time.sleep(0.1)
 
 
@@ -156,14 +156,14 @@ def checkcorona():
     if str(dicthtml["tarih"]) == str(date):
         if not (newDay):
             message = (
-                f'''\nKovid19Bildirici, tarih:📅 {date} 📅\n
-                Merhabalar,\n\n
-                🤖Günlük 🦠koronavirüs🦠 tablosu açıklandı\n
-                😷Test sayısı:    {str(dicthtml["gunluk_test"]).replace(".", "")} \n
-                🤒Vaka sayısı:   {str(dicthtml["gunluk_vaka"]).replace(".", "")} \n
-                💀Vefat sayısı:   {str(dicthtml["gunluk_vefat"]).replace(".", "")} \n
-                💉İyileşen sayısı:   {str(dicthtml["gunluk_iyilesen"]).replace(".", "")} \n\n
-                Saygılarımla'''
+                f'''Tarih: 📅 {date} 📅\n
+Merhabalar,\n\n
+🤖Günlük 🦠koronavirüs🦠 tablosu açıklandı\n
+😷Test sayısı:    {str(dicthtml["gunluk_test"]).replace(".", "")}
+🤒Vaka sayısı:   {str(dicthtml["gunluk_vaka"]).replace(".", "")}
+💀Vefat sayısı:   {str(dicthtml["gunluk_vefat"]).replace(".", "")}
+💉İyileşen sayısı:   {str(dicthtml["gunluk_iyilesen"]).replace(".", "")} \n\n
+Saygılarımla'''
             )
             print("NOW")
             newDay = True

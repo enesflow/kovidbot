@@ -9,8 +9,6 @@ from pathlib import Path
 
 
 
-with open(getfile("people.txt"), "r") as f:
-    temp = eval(f.read())
 
 token = "1232041033:AAHLLOUxgSIgDT4q5qxoZznvM2YvI9wfoXQ"
 url = "https://api.telegram.org/bot" + token + "/"
@@ -22,6 +20,10 @@ def getfile(file):  # Get the absolute path of a file
     script_location = Path(__file__).absolute().parent
     file_location = script_location / file
     return file_location
+
+
+with open(getfile("people.txt"), "r") as f:
+    temp = eval(f.read())
 
 
 # Get chat id function

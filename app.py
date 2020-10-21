@@ -110,7 +110,7 @@ Kovid19 tablosu açıklandığında size haber vereceğim!"""
 
             update_id += 1
         #checkcorona()
-        time.sleep(0.75)
+        time.sleep(0.1)
 
 
 def gethtml(url):

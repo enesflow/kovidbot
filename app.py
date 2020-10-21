@@ -101,7 +101,7 @@ Kovid19 tablosu açıklandığında size haber vereceğim!"""
                     send_message(get_chat_id(update), "Kaydınız başarıyla silindi!")
                 else:
                     send_message(get_chat_id(update), "Zaten kayıt listesinde değilsiniz")
-            if command(get_message_text(update), "people"):
+            if command(get_message_text(update), ["people", "kullanicilar", "insanlar"]):
                 send_message(get_chat_id(update), str(getlist()))
             update_id += 1
         checkcorona()

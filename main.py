@@ -5,7 +5,7 @@ import urllib
 import requests
 import time
 
-url = "https://api.telegram.org/bot1338035537:AAFECSSQgKYcroddrdK8aS5W1QE_UiXnxOM/"
+url = "https://api.telegram.org/bot1225556791:AAG07S-QNady1QLyjVFaWCIwbsJV1Pn_S2Q/"
 prefix = ""
 
 people = []

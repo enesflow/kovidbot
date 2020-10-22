@@ -100,7 +100,8 @@ def main():
             update_id += 1
         checkedcovid = checkcorona()
         if (checkedcovid[0]):
-            send_message(current_chat, checkedcovid[1])
+            for person in people:
+                send_message(person, checkedcovid[1])
         # time.sleep(0.05)
 
 

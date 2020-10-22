@@ -8,7 +8,7 @@ import time
 url = "https://api.telegram.org/bot1225556791:AAG07S-QNady1QLyjVFaWCIwbsJV1Pn_S2Q/"
 prefix = ""
 
-people = []
+people = [1155586242, 1221177293]
 
 newDay = True
 
@@ -17,21 +17,25 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4257.0 Safari/537.36"
 }
 
-currentdate = "Whatever"
+currentdate = datetime.datetime.today().strftime("%d.%m.%Y")
 currentsec = "-1"
 
 maxtime = 40
 a = 1
-
 deftime = 300
-timedict = {18:60,19:30,20:15,21:9}
+timedict = {18: 60, 19: 30, 20: 15, 21: 9}
+
+everysecs = deftime
+
+
 
 def get_delay(h):
     tempd = deftime
     for t, d in timedict.items():
-        if t < h < t + 2:
+        if t <= h <= t + 2:
             tempd = d
     return tempd
+
 
 # Get chat id function
 def get_chat_id(update):
@@ -105,20 +109,22 @@ def main():
         # time.sleep(0.05)
 
 
-
-
-
 def checkcorona():
     global currentsec
     global currentdate
+    global everysecs
     global newDay
 
-    everysecs = get_delay(int(datetime.datetime.today().strftime("%H")))
-    print(everysecs)
-    if currentdate != datetime.datetime.today().strftime("%d.%m.%Y"):
-        newDay = True
 
-    if newDay:
+    print(newDay, everysecs)
+
+    if currentdate != datetime.datetime.today().strftime("%d.%m.%Y"):
+        currentdate = datetime.datetime.today().strftime("%d.%m.%Y")
+        newDay = True
+    if not newDay:
+        everysecs = deftime
+    else:
+        everysecs = get_delay(int(datetime.datetime.today().strftime("%H")))
         # print(currentsec, datetime.datetime.today().strftime("%S"))
         diff = int(datetime.datetime.today().strftime("%S")) - int(currentsec)
         if diff >= everysecs or diff < 0:
@@ -127,7 +133,6 @@ def checkcorona():
             html = gethtml(URL, 10)
 
             dicthtml = json.loads(html)[0]
-
 
             date = datetime.datetime.today().strftime("%d.%m.%Y")
             if str(dicthtml["tarih"]) == str(date):
@@ -147,8 +152,6 @@ Saygılarımla'''
             print("checked")
 
     return [False]
-
-
 
 
 main()

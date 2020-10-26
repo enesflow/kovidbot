@@ -10,7 +10,7 @@ bot = telebot.TeleBot(TOKEN)
 
 url = "https://covid19.saglik.gov.tr/covid19api?getir=sondurum"
 
-people = []
+people = [1155586242, 1221177293]
 
 
 def gethtml(url, timeout=5):
@@ -31,8 +31,8 @@ def corona():
                 newDay = False
                 
                 for person in people:
-                    bot.send_message(message.chat.id, "🦠")
-                    bot.send_message(message.chat.id, f'''
+                    bot.send_message(person, "🦠")
+                    bot.send_message(person, f'''
                     Tarih {api["tarih"]}
 
 💉  Test        {api["gunluk_test"]}  
@@ -77,6 +77,11 @@ def cikis(message):
     else:
         bot.send_message(message.chat.id, "👎🏻")
         bot.send_message(message.chat.id, "Zaten listede adınız bulunmamakta")
+
+
+@bot.message_handler(commands=["list"])
+def lst(message):
+    bot.reply_to(message, str(people))
 
     
 

@@ -24,30 +24,35 @@ def corona():
     global newDay
     global today
     while True:
-        api = json.loads(gethtml(url))[0]
-        if newDay:
-            if today == api["tarih"]:
-                print("Now")
-                newDay = False
-                
-                for person in people:
-                    bot.send_message(person, "🦠")
-                    bot.send_message(person, f'''
-                    Tarih {api["tarih"]}
+        try:
+            print("Checking")
+            api = json.loads(gethtml(url))[0]
+            if newDay:
+                if today == api["tarih"]:
+                    print("Now")
+                    newDay = False
+                    
+                    for person in people:
+                        bot.send_message(person, "🦠")
+                        bot.send_message(person, f'''
+                        Tarih {api["tarih"]}
 
-💉  Test        {api["gunluk_test"]}  
-😷  Vaka       {api["gunluk_vaka"]}  
-☠  Vefat      {api["gunluk_vefat"]}  
-😁  İyileşen  {api["gunluk_iyilesen"]}  
-        ''')
+    💉  Test        {api["gunluk_test"]}  
+    😷  Vaka       {api["gunluk_vaka"]}  
+    ☠  Vefat      {api["gunluk_vefat"]}  
+    😁  İyileşen  {api["gunluk_iyilesen"]}  
+            ''')
 
-            else:
-                print("Not now")
-        if today != date.today().strftime("%d.%m.%Y"):
-            today = date.today().strftime("%d.%m.%Y")
-            newDay = True
+                else:
+                    print("Not now")
+            if today != date.today().strftime("%d.%m.%Y"):
+                today = date.today().strftime("%d.%m.%Y")
+                newDay = True
 
-        time.sleep(1)
+            print("Checked")
+            time.sleep(1)
+        except Exception as e:
+            bot.send_message(1155586242, f"ERROR\n{e}")
 
 
 @bot.message_handler(commands=["start"])

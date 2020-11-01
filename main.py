@@ -50,7 +50,7 @@ def corona():
                 newDay = True
 
             print("Checked")
-            time.sleep(3)
+            time.sleep(7)
         except Exception as e:
             #bot.send_message(1155586242, f"ERROR\n{e}")
             pass

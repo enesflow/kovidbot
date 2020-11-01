@@ -52,7 +52,8 @@ def corona():
             print("Checked")
             time.sleep(3)
         except Exception as e:
-            bot.send_message(1155586242, f"ERROR\n{e}")
+            #bot.send_message(1155586242, f"ERROR\n{e}")
+            pass
 
 
 @bot.message_handler(commands=["start"])

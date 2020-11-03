@@ -42,7 +42,6 @@ def corona():
     ☠  Vefat      {api["gunluk_vefat"]}  
     😁  İyileşen  {api["gunluk_iyilesen"]}  
             ''')
-                    time.sleep(79200)
                 else:
                     print("Not now")
             if today != date.today().strftime("%d.%m.%Y"):

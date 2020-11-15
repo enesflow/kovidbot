@@ -113,6 +113,5 @@ def poll():
             time.sleep(5)
 
 
-if __name__ == "__main__":
-    Process(target=poll).start()
-    Process(target=corona).start()
+Process(target=poll).start()
+Process(target=corona).start()

@@ -3,15 +3,15 @@ import time
 import urllib
 import json
 import datetime
-from threading import Thread
+from multiprocessing import Process
 
-TOKEN = "1128846573:AAGCjohAxH7lU6WbLkswR6_whH2tNp8ucW0"
+TOKEN = "1128846573:AAHGFIYUvb-MQ5Z6lc7grqKzEqs-utOoyLo"
 bot = telebot.TeleBot(TOKEN)
 
 url = "https://covid19.saglik.gov.tr/covid19api?getir=sondurum"
 
 people = [1155586242, 1221177293]
-delay = {18: 60, 19: 30, 20: 15, 21: 7.5, 200: 1700, 400: 1000}
+delay = {18: 30, 19: 15, 20: 7.5, 21: 5, 200: 1000, 400: 1000}
 delayfor = None
 
 
@@ -114,5 +114,5 @@ def poll():
 
 
 if __name__ == "__main__":
-    Thread(target=poll).start()
-    Thread(target=corona).start()
+    Process(target=poll).start()
+    Process(target=corona).start()

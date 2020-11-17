@@ -57,7 +57,7 @@ def corona():
             delayfor = delay[200]
             for i in delay:
                 try:
-                    if int(datetime.datetime.now().hour) > int(i):
+                    if int(datetime.datetime.now().hour) >= int(i):
                         delayfor = delay[i]
                 except:
                     delayfor = delay[400]

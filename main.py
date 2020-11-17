@@ -3,7 +3,7 @@ import time
 import urllib
 import json
 import datetime
-from multiprocessing import Process
+from threading import Thread
 
 TOKEN = "1128846573:AAHGFIYUvb-MQ5Z6lc7grqKzEqs-utOoyLo"
 bot = telebot.TeleBot(TOKEN)
@@ -113,5 +113,5 @@ def poll():
             time.sleep(5)
 
 
-Process(target=poll).start()
-Process(target=corona).start()
+Thread(target=poll).start()
+Thread(target=corona).start()

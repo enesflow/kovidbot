@@ -1,5 +1,5 @@
 import telebot
-import time 
+import time
 import urllib
 import json
 import datetime
@@ -11,9 +11,10 @@ bot = telebot.TeleBot(TOKEN)
 
 url = "https://covid19.saglik.gov.tr/covid19api?getir=sondurum"
 
+admin = 1155586242
 people = [1155586242, 1221177293]
 
-delay = {18: 30, 19: 15, 20: 7.5, 21: 5, 200: 1000, 400: 1000, 100: 1000}
+delay = {18: 30, 19: 15, 20: 7.5, 21: 5, 200: 100, 400: 100, 100: 100}
 delayfor = None
 
 
@@ -59,8 +60,9 @@ def corona():
                 try:
                     if int(datetime.datetime.now().hour) >= int(i):
                         delayfor = delay[i]
-                except:
+                except Exception as e:
                     delayfor = delay[400]
+                    bot.send_message(admin, e)
 
             if not newDay:
                 delayfor = delay[100]

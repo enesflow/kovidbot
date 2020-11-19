@@ -158,7 +158,10 @@ def momoji(message):
     moji = (message.text).split()[1]
     bot.send_message(message.chat.id, f"{cmoji} → {moji}")
 
-
+@ bot.message_handler(commands=["delay"])
+def delay(message):
+    bot.reply_to(message, delayfor)
+    
 @ bot.message_handler(commands=["giris"])
 def giris(message):
     if message.chat.id in people:

@@ -6,13 +6,13 @@ import datetime
 from threading import Thread
 import math
 
-TOKEN = "1128846573:AAHGFIYUvb-MQ5Z6lc7grqKzEqs-utOoyLo"
+TOKEN = "1128846573:AAG1ZTgNP57kbTNRn-_O5l7vkRPNyJz_Q-Q"
 bot = telebot.TeleBot(TOKEN)
 
 url = "https://covid19.saglik.gov.tr/covid19api?getir=sondurum"
 
 admin = 1155586242
-people = [1155586242, 1221177293]
+people = [1155586242]#, 1221177293]
 
 delay = {18: 30, 19: 15, 20: 7.5, 21: 5, 200: 100, 400: 100, 100: 100}
 delayfor = None

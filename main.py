@@ -12,7 +12,7 @@ bot = telebot.TeleBot(TOKEN)
 url = "https://covid19.saglik.gov.tr/covid19api?getir=sondurum"
 
 admin = 1155586242
-people = [1155586242]#, 1221177293]
+people = [1155586242, 1221177293]
 
 delay = {18: 30, 19: 15, 20: 7.5, 21: 5, 200: 100, 400: 100, 100: 100}
 delayfor = None
@@ -128,6 +128,10 @@ def getcurve(r=5, emoji=moji, sendwhat="gva", m=4):
 @ bot.message_handler(commands=["start"])
 def start(message):
     bot.reply_to(message, "Hello There")
+    
+@ bot.message_handler(commands=["delay"])
+def start(message):
+    bot.reply_to(message, str(delayfor))
 
 
 @ bot.message_handler(commands=["chatid"])

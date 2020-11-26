@@ -6,13 +6,13 @@ import datetime
 from threading import Thread
 import math
 
-TOKEN = "1128846573:AAG1ZTgNP57kbTNRn-_O5l7vkRPNyJz_Q-Q"
+TOKEN = "1128846573:AAEOPz-8xmOY7dA5iiqFdkS_Gy4MZfOPiwY"
 bot = telebot.TeleBot(TOKEN)
 
-url = "https://covid19.saglik.gov.tr/covid19api?getir=sondurum"
+url = "https://api.covid19api.com/total/dayone/country/turkey"
 
 admin = 1155586242
-people = [1155586242, 1221177293]
+people = [1155586242]  # , 1221177293]
 
 delay = {18: 30, 19: 15, 20: 7.5, 21: 5, 200: 100, 400: 100, 100: 100}
 delayfor = None
@@ -28,16 +28,23 @@ newDay = True
 
 moji = "🟥"
 
+api = None
+
 
 def corona():
     global newDay
     global today
     global delayfor
+    global api
     while True:
         try:
             print("Checking")
-            api = gethtml(url)[0]
-            if newDay and today == api["tarih"]:
+            temp = gethtml(url)
+            if not api or api != temp:
+                api = temp
+                today = datetime.date.today().strftime("%d.%m.%Y")
+                newDay = True
+            if newDay:
                 print("Now")
                 newDay = False
 
@@ -45,14 +52,11 @@ def corona():
                     bot.send_message(person, "🦠")
                     bot.send_message(
                         person,
-                        f'Tarih {api["tarih"]}\n\n💉 Test\t{api["gunluk_test"]}\n😷 Vaka\t{api["gunluk_vaka"]}\n☠ Vefat\t{api["gunluk_vefat"]}\n😁 İyileşen\t{api["gunluk_iyilesen"]}'
+                        f'Tarih {today}\n\n😷 Vaka\t{list(api)[-1]["Confirmed"] - list(api)[-2]["Confirmed"]}\n☠ Vefat\t{list(api)[-1]["Deaths"] - list(api)[-2]["Deaths"]}\n😁 İyileşen\t{list(api)[-1]["Recovered"] - list(api)[-2]["Recovered"]}'
                     )
 
             else:
                 print("Not now")
-            if today != datetime.date.today().strftime("%d.%m.%Y"):
-                today = datetime.date.today().strftime("%d.%m.%Y")
-                newDay = True
 
             print("Checked")
             delayfor = delay[200]
@@ -68,15 +72,16 @@ def corona():
                 delayfor = delay[100]
             print(delayfor)
             time.sleep(delayfor)
-        except:  # Exception as e
-            pass
+        except Exception as e:  # Exception as e
+            print(e)
+            time.sleep(delay[100])
             # bot.send_message(1155586242, f"ERROR\n{e}")
 
 
 def split(arr, value=3):
     arrs = []
     for i in range(0, len(arr), value):
-        arrs.append(arr[i:i+value])
+        arrs.append(arr[i:i + value])
     return arrs
 
 
@@ -128,7 +133,8 @@ def getcurve(r=5, emoji=moji, sendwhat="gva", m=4):
 @ bot.message_handler(commands=["start"])
 def start(message):
     bot.reply_to(message, "Hello There")
-    
+
+
 @ bot.message_handler(commands=["delay"])
 def start(message):
     bot.reply_to(message, str(delayfor))
@@ -141,31 +147,21 @@ def chatid(message):
 
 @ bot.message_handler(commands=["covid"])
 def covid(message):
-    if len(message.text.split()) > 1:
-        val = message.text.split()[1]
-    else:
-        val = "gva"
-    curve = ""
-    allcurve = getcurve(sendwhat=val)
-    if allcurve:
-        for i in allcurve:
-            curve += i + "\n"
-        bot.send_message(message.chat.id, curve)
-    else:
-        bot.send_message(message.chat.id, "...")
+    bot.send_message(message.chat.id, 'service is temporarily unavaible')
+    # if len(message.text.split()) > 1:
+    #    val = message.text.split()[1]
+    # else:
+    #    val = "gva"
+    #curve = ""
+    #allcurve = getcurve(sendwhat=val)
+    # if allcurve:
+    #    for i in allcurve:
+    #        curve += i + "\n"
+    #    bot.send_message(message.chat.id, curve)
+    # else:
+    #    bot.send_message(message.chat.id, "...")
 
 
-@ bot.message_handler(commands=["emoji"])
-def momoji(message):
-    global moji
-    cmoji = moji
-    moji = (message.text).split()[1]
-    bot.send_message(message.chat.id, f"{cmoji} → {moji}")
-
-@ bot.message_handler(commands=["delay"])
-def delay(message):
-    bot.reply_to(message, delayfor)
-    
 @ bot.message_handler(commands=["giris"])
 def giris(message):
     if message.chat.id in people:

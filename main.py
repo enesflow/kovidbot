@@ -93,12 +93,11 @@ def curve(get='Active', h=15, w=8, c='turkey'):
     api_data = gethtml(url)
     all_active = []
     if get.lower() == 'new':
-        api_data.insert(0, {'Active': 0, 'Recovered': 0})
+        api_data.insert(0, {'Confirmed': 0})
         temp = api_data[0]
         for i in api_data[1:]:
             # - api_data[i-1]['Active'])
-            all_active.append((i['Active'] - temp['Active']) +
-                              ((i['Recovered'] - temp['Recovered'])))
+            all_active.append((i['Confirmed'] - temp['Confirmed']))
             temp = i
     else:
         for i in api_data:

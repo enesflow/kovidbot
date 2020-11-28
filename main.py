@@ -29,7 +29,7 @@ def gethtml(url, timeout=5, rplc=""):
     return json.loads(thesite.decode('utf8').replace(rplc, ""))
 
 
-newDay = False
+newDay = True
 
 api = [69]
 
@@ -43,12 +43,12 @@ def corona():
         try:
             print("Checking")
             temp = gethtml(url)
-            if str(datetime.date.today()) in temp[-1]['Date']:
+            if str(datetime.date.today()) not in temp[-1]['Date']:
                 api = temp
                 today = temp[-1]['Date'][:10]
                 print(today)
                 newDay = True
-            if newDay:
+            if newDay and str(datetime.date.today()) in temp[-1]['Date']:
                 print("Now")
                 newDay = False
 
@@ -69,6 +69,7 @@ def corona():
                     if int(datetime.datetime.now().hour) >= int(i):
                         delayfor = delay[i]
                 except Exception as e:
+                    print(e)
                     delayfor = delay[100]
                     bot.send_message(admin, e)
 
@@ -202,7 +203,7 @@ def covid(message):
                             c = translator.translate(message.text.split()[
                                                      4], dest='en').text.lower()
 
-        temp_curve = curve(get=get, h=h, w=w, c=c)
+        temp_curve = curve(get=get.capitalize(), h=h, w=w, c=c)
         mojis = ['🟩', '🟨', '🟧', '🟥']
         res = ''
         for i in temp_curve:

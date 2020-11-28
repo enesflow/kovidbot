@@ -5,6 +5,10 @@ import json
 import datetime
 from threading import Thread
 import math
+import random
+from googletrans import Translator
+
+translator = Translator()
 
 TOKEN = "1128846573:AAEOPz-8xmOY7dA5iiqFdkS_Gy4MZfOPiwY"
 bot = telebot.TeleBot(TOKEN)
@@ -12,10 +16,12 @@ bot = telebot.TeleBot(TOKEN)
 url = "https://api.covid19api.com/total/dayone/country/turkey"
 
 admin = 1155586242
-people = [1155586242 , 1221177293]
+people = [1155586242, 1221177293]
 
-delay = {18: 30, 19: 15, 20: 7.5, 21: 5, 200: 100, 400: 100, 100: 100}
+delay = {18: 30, 19: 15, 20: 7.5, 21: 3, 100: 1000}
 delayfor = None
+
+today = datetime.date.today()
 
 
 def gethtml(url, timeout=5, rplc=""):
@@ -23,12 +29,9 @@ def gethtml(url, timeout=5, rplc=""):
     return json.loads(thesite.decode('utf8').replace(rplc, ""))
 
 
-today = datetime.date.today().strftime("%d.%m.%Y")
-newDay = True
+newDay = False
 
-moji = "🟥"
-
-api = None
+api = [69]
 
 
 def corona():
@@ -40,9 +43,10 @@ def corona():
         try:
             print("Checking")
             temp = gethtml(url)
-            if not api or api != temp:
+            if str(datetime.date.today()) in temp[-1]['Date']:
                 api = temp
-                today = datetime.date.today().strftime("%d.%m.%Y")
+                today = temp[-1]['Date'][:10]
+                print(today)
                 newDay = True
             if newDay:
                 print("Now")
@@ -59,13 +63,13 @@ def corona():
                 print("Not now")
 
             print("Checked")
-            delayfor = delay[200]
+            delayfor = delay[100]
             for i in delay:
                 try:
                     if int(datetime.datetime.now().hour) >= int(i):
                         delayfor = delay[i]
                 except Exception as e:
-                    delayfor = delay[400]
+                    delayfor = delay[100]
                     bot.send_message(admin, e)
 
             if not newDay:
@@ -77,6 +81,30 @@ def corona():
             time.sleep(delay[100])
             # bot.send_message(1155586242, f"ERROR\n{e}")
 
+#
+# Get curve
+#
+
+
+def curve(get='Active', h=15, w=8, c='turkey'):
+    url = "https://api.covid19api.com/total/dayone/country/" + c
+    h = h  # - 1
+
+    api_data = gethtml(url)
+    all_active = []
+    for i in api_data:
+        all_active.append(i[get])
+
+    big_round = math.ceil(len(all_active) / h)
+    split_active = split(all_active, value=big_round)
+    av_active = []
+    for i in split_active:
+        av_active.append(int(sum(i) / len(i)))
+    case_round = max(av_active) / w
+    for i in range(len(av_active)):
+        av_active[i] = math.ceil(av_active[i] / case_round)
+    return av_active
+
 
 def split(arr, value=3):
     arrs = []
@@ -85,108 +113,132 @@ def split(arr, value=3):
     return arrs
 
 
-def av(arr):
-    return int(sum(arr) / len(arr))
-
-
-def getcurve(r=5, emoji=moji, sendwhat="gva", m=4):
-    rpl = {
-        "gva": "gunluk_vaka",
-        "gt": "gunluk_test",
-        "gve": "gunluk_vefat",
-        "gi": "gunluk_iyilesen"
-    }
-    if sendwhat in rpl:
-        what = rpl[sendwhat]
-    else:
-        return None
-    vl = []
-    avl = []
-    cavl = []
-    URL = 'https://covid19.saglik.gov.tr/covid19api?getir=liste'
-    covid = reversed(gethtml(URL, rplc="."))
-
-    for i in covid:
-        try:
-            if what == "gunluk_vefat":
-                vl.append(int(int(i[what]) / m))
-            elif what == "gunluk_test":
-                vl.append(int(int(i[what]) / (m * 750)))
-            else:
-                vl.append(int(int(i[what]) / (m * 25)))
-
-        except ValueError:
-            pass
-
-    vl = split(vl, r)
-    for i in vl:
-        avl.append(av(i))
-
-    cavl = avl
-    avl = []
-    for i in cavl:
-        avl.append(math.ceil(i / r) * emoji)
-
-    return avl
-
-
 @ bot.message_handler(commands=["start"])
 def start(message):
-    bot.reply_to(message, "Hello There")
+    try:
+        bot.reply_to(message, "Hello There")
+    except Exception as e:
+        bot.send_message(
+            message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
 
 @ bot.message_handler(commands=["delay"])
 def start(message):
-    bot.reply_to(message, str(delayfor))
+    try:
+        bot.reply_to(message, str(delayfor))
+    except Exception as e:
+        bot.send_message(
+            message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
 
 @ bot.message_handler(commands=["chatid"])
 def chatid(message):
-    bot.reply_to(message, f"Your chat id is {message.chat.id}")
+    try:
+        bot.reply_to(message, f"Your chat id is {message.chat.id}")
+    except Exception as e:
+        bot.send_message(
+            message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
 
 @ bot.message_handler(commands=["covid"])
 def covid(message):
-    bot.send_message(message.chat.id, 'service is temporarily unavaible')
-    # if len(message.text.split()) > 1:
-    #    val = message.text.split()[1]
-    # else:
-    #    val = "gva"
-    #curve = ""
-    #allcurve = getcurve(sendwhat=val)
-    # if allcurve:
-    #    for i in allcurve:
-    #        curve += i + "\n"
-    #    bot.send_message(message.chat.id, curve)
-    # else:
-    #    bot.send_message(message.chat.id, "...")
+    try:
+        bot.send_message(message.chat.id, 'Grafiğiniz hazırlanılıyor')
+        h = 20
+        w = 8
+        c = 'turkey'
+        d = '_'
+        get = 'Active'
+        gets = {
+            'Active': 'Active cases',
+            'Deaths': 'Deaths',
+            'Confirmed': 'Total cases',
+            'Recovered': 'Recovered',
+            'Date': 'Date'
+        }
+        none = ['_', '']
+        if len(message.text.split()) > 1:
+            if message.text.split()[1] in none:
+                pass
+            else:
+                if translator.translate(message.text.split()[1], dest='en').text.capitalize() in gets:
+                    get = translator.translate(
+                        message.text.split()[1], dest='en').text.capitalize()
+                else:
+                    bot.send_message(
+                        message.chat.id, 'Bilinmeyen değişken ' + str(message.text.split()[1]) + ' veya ' + translator.translate(message.text.split()[1], dest='en').text.capitalize()x)
+                    return
+            if len(message.text.split()) > 2:
+                if message.text.split()[2] in none:
+                    pass
+                else:
+                    h = int(message.text.split()[2])
+                if len(message.text.split()) > 3:
+                    if message.text.split()[3] in none:
+                        pass
+                    else:
+                        w = int(message.text.split()[3])
+                    if len(message.text.split()) > 4:
+                        if message.text.split()[4] in none:
+                            pass
+                        else:
+                            c = translator.translate(message.text.split()[
+                                                     4], dest='en').text.lower()
+
+        temp_curve = curve(get=get, h=h, w=w, c=c)
+        mojis = ['🟩', '🟨', '🟧', '🟥']
+        res = ''
+        for i in temp_curve:
+            res += (
+                f"{i * mojis[math.floor(i / (max(temp_curve) / (len(mojis) - 1)))]}\n")
+
+        bot.send_message(
+            message.chat.id, f'''{translator.translate(c, dest='tr').text.capitalize()} ülkesisin {translator.translate(gets[get], dest='tr').text} grafiği''')
+        bot.send_message(message.chat.id, res)
+    except Exception as e:
+        bot.send_message(
+            message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
 
 @ bot.message_handler(commands=["giris"])
 def giris(message):
-    if message.chat.id in people:
-        bot.send_message(message.chat.id, "👎🏻")
-        bot.send_message(message.chat.id, "Zaten listede adınız bulunmakta")
-    else:
-        people.append(message.chat.id)
-        bot.send_message(message.chat.id, "👌🏻")
-        bot.send_message(message.chat.id, "Giriş başarıyla tamamlandı")
+    try:
+        if message.chat.id in people:
+            bot.send_message(message.chat.id, "👎🏻")
+            bot.send_message(
+                message.chat.id, "Zaten listede adınız bulunmakta")
+        else:
+            people.append(message.chat.id)
+            bot.send_message(message.chat.id, "👌🏻")
+            bot.send_message(message.chat.id, "Giriş başarıyla tamamlandı")
+    except Exception as e:
+        bot.send_message(
+            message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
 
 @ bot.message_handler(commands=["cikis"])
 def cikis(message):
-    if message.chat.id in people:
-        people.remove(message.chat.id)
-        bot.send_message(message.chat.id, "👌🏻")
-        bot.send_message(message.chat.id, "Çıkış başarıyla tamamlandı")
-    else:
-        bot.send_message(message.chat.id, "👎🏻")
-        bot.send_message(message.chat.id, "Zaten listede adınız bulunmamakta")
+    try:
+        if message.chat.id in people:
+            people.remove(message.chat.id)
+            bot.send_message(message.chat.id, "👌🏻")
+            bot.send_message(message.chat.id, "Çıkış başarıyla tamamlandı")
+        else:
+            bot.send_message(message.chat.id, "👎🏻")
+            bot.send_message(
+                message.chat.id, "Zaten listede adınız bulunmamakta")
+    except Exception as e:
+        bot.send_message(
+            message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
 
 @ bot.message_handler(commands=["list"])
 def lst(message):
-    bot.reply_to(message, str(people))
+    try:
+        bot.reply_to(message, str(people))
+    except Exception as e:
+        bot.send_message(
+            message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
 
 def poll():

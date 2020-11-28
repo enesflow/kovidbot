@@ -31,8 +31,9 @@ def gethtml(url, timeout=5, rplc=""):
                    [-1])[67:].replace('</script>', '').replace(';//]]>', '')
         from pyperclip import copy
         copy(cont)
-    except:
-        return -1
+    except Exception as e:
+        bot.send_message(admin, e)
+        return [0]
     return json.loads(str(cont))
 
 

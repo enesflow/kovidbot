@@ -156,7 +156,7 @@ def covid(message):
             'Recovered': 'Recovered',
             'Date': 'Date'
         }
-        none = ['_', '']
+        none = ['_', '-']
         if len(message.text.split()) > 1:
             if message.text.split()[1] in none:
                 pass

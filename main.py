@@ -166,7 +166,7 @@ def covid(message):
                         message.text.split()[1], dest='en').text.capitalize()
                 else:
                     bot.send_message(
-                        message.chat.id, 'Bilinmeyen değişken ' + str(message.text.split()[1]) + ' veya ' + translator.translate(message.text.split()[1], dest='en').text.capitalize()x)
+                        message.chat.id, 'Bilinmeyen değişken ' + str(message.text.split()[1]) + ' veya ' + translator.translate(message.text.split()[1], dest='en').text.capitalize())
                     return
             if len(message.text.split()) > 2:
                 if message.text.split()[2] in none:

@@ -25,17 +25,17 @@ today = datetime.date.today()
 
 
 def gethtml(url, timeout=5, rplc=""):
-    thesite = urllib.request.urlopen(url, timeout=timeout).read()
+    try:
+        thesite = urllib.request.urlopen(url, timeout=timeout).read()
+    except:
+        return -1
     return json.loads(thesite.decode('utf8').replace(rplc, ""))
 
-
-newDay = True
 
 api = [69]
 
 
 def corona():
-    global newDay
     global today
     global delayfor
     global api
@@ -43,12 +43,7 @@ def corona():
         try:
             print("Checking")
             temp = gethtml(url)
-            if str(datetime.date.today()) not in temp[-1]['Date']:
-                api = temp
-                today = temp[-1]['Date'][:10]
-                print(today)
-                newDay = True
-            if newDay and str(datetime.date.today()) in temp[-1]['Date']:
+            if str(datetime.date.today()) in temp[-1]['Date']:
                 print("Now")
                 newDay = False
 
@@ -73,8 +68,6 @@ def corona():
                     delayfor = delay[100]
                     bot.send_message(admin, e)
 
-            if not newDay:
-                delayfor = delay[100]
             print(delayfor)
             time.sleep(delayfor)
         except Exception as e:  # Exception as e

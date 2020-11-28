@@ -1,24 +1,23 @@
 import telebot
 import time
-import urllib
+import requests
 import json
 import datetime
 from threading import Thread
 import math
-import random
-from googletrans import Translator
+from bs4 import BeautifulSoup
 
-translator = Translator()
 
 TOKEN = "1128846573:AAEOPz-8xmOY7dA5iiqFdkS_Gy4MZfOPiwY"
 bot = telebot.TeleBot(TOKEN)
 
-url = "https://api.covid19api.com/total/dayone/country/turkey"
+url = 'https://covid19.saglik.gov.tr/TR-66935/genel-koronavirus-tablosu.html'
 
 admin = 1155586242
 people = [1155586242, 1221177293]
 
-delay = {18: 300, 19: 120, 20: 60, 21: 15, 100: 1000}
+t = 60
+delay = {18: t * 10, 19: t * 5, 20: t * 2, 21: t, 100: t * 25}
 delayfor = None
 
 today = datetime.date.today()
@@ -26,10 +25,15 @@ today = datetime.date.today()
 
 def gethtml(url, timeout=5, rplc=""):
     try:
-        thesite = urllib.request.urlopen(url, timeout=timeout).read()
+        page = requests.get(url)
+        soup = BeautifulSoup(page.content, "html.parser")
+        cont = str(soup.findAll('script')
+                   [-1])[67:].replace('</script>', '').replace(';//]]>', '')
+        from pyperclip import copy
+        copy(cont)
     except:
         return -1
-    return json.loads(thesite.decode('utf8').replace(rplc, ""))
+    return json.loads(str(cont))
 
 
 api = [69]
@@ -38,45 +42,62 @@ checked = False
 
 
 def corona():
-    global today
+    global checked
     global delayfor
     global api
     while True:
         try:
             print("Checking")
-            temp = gethtml(url)
-            print(temp[-1]['Date'])
-            if not str(datetime.date.today()) in temp[-1]['Date']:
-                checked = False
-            if not checked and str(datetime.date.today()) in temp[-1]['Date']:
-                print("Now")
 
-                for person in people:
-                    bot.send_message(person, "🦠")
-                    bot.send_message(
-                        person,
-                        f'Tarih {today}\n\n😷 Vaka\t{list(api)[-1]["Confirmed"] - list(api)[-2]["Confirmed"]}\n☠ Vefat\t{list(api)[-1]["Deaths"] - list(api)[-2]["Deaths"]}\n😁 İyileşen\t{list(api)[-1]["Recovered"] - list(api)[-2]["Recovered"]}'
-                    )
-                checked = True
+            temp = gethtml(url)[0]
+
+            # print(temp['tarih'])
+
+            d = datetime.datetime.today().strftime("%d.%m.%Y")
+            d = '28.11.2020'
+            if d != temp['tarih']:
+                checked = False
 
             else:
-                print("Not now")
+                if not checked:
+                    print('now')
+                    checked = True
+                    case = int(temp['gunluk_hasta'].replace('.', ''))
+                    if temp['gunluk_vaka']:
+                        case += int(temp['gunluk_vaka'].replace('.', ''))
 
-            print("Checked")
+                    message = f'''Hey! Koronavirüs Tablosu Açıklandı
+
+📅 Tarih {temp['tarih']}
+
+
+😷 Test sayısı: {temp['gunluk_test'].replace('.', '')}
+🤒 Vaka sayısı: {case}
+💀 Vefat sayısı: {temp['gunluk_vefat'].replace('.', '')}
+💉 İyileşen sayısı: {temp['gunluk_iyilesen'].replace('.', '')}
+                    '''
+
+                    for i in people:
+                        bot.send_message(i, '🦠')
+                        bot.send_message(i, message)
+
+            # print("Checked")
             delayfor = delay[100]
             for i in delay:
                 try:
                     if int(datetime.datetime.now().hour) >= int(i):
                         delayfor = delay[i]
+                    if checked == True:
+                        delayfor = delay[100]
                 except Exception as e:
                     print(e)
                     delayfor = delay[100]
                     bot.send_message(admin, e)
 
-            print(delayfor)
+            # print(delayfor)
             time.sleep(delayfor)
         except Exception as e:  # Exception as e
-            print(e)
+            # print(e)
             time.sleep(delay[100])
             # bot.send_message(1155586242, f"ERROR\n{e}")
 
@@ -85,32 +106,40 @@ def corona():
 #
 
 
-def curve(get='Active', h=15, w=8, c='turkey'):
-    url = "https://api.covid19api.com/total/dayone/country/" + c
+def curve(get='gunluk_vaka', h=15, w=8):
     h = h  # - 1
 
-    api_data = gethtml(url)
+    api_data = gethtml(url)[::-1]
     all_active = []
-    if get.lower() == 'new':
-        api_data.insert(0, {'Confirmed': 0})
-        temp = api_data[0]
-        for i in api_data[1:]:
-            # - api_data[i-1]['Active'])
-            all_active.append((i['Confirmed'] - temp['Confirmed']))
-            temp = i
+    if get == 'gunluk_vaka':
+        for i in api_data:
+            case = (i['gunluk_hasta'].replace('.', ''))
+            if not case:
+                case = 0
+            else:
+                case = int(case)
+            if i['gunluk_vaka']:
+                case += int(i['gunluk_vaka'].replace('.', ''))
+
+            all_active.append(case)
+
     else:
         for i in api_data:
-            all_active.append(i[get])
+
+            if i[get]:
+                all_active.append(int(i[get].replace('.', '')))
+            else:
+                all_active.append(0)
 
     big_round = math.ceil(len(all_active) / h)
     split_active = split(all_active, value=big_round)
     av_active = []
     for i in split_active:
+        # print(i)
         av_active.append(int(sum(i) / len(i)))
     case_round = max(av_active) / w
     for i in range(len(av_active)):
         av_active[i] = math.ceil(av_active[i] / case_round)
-    from pprint import pprint
     return av_active
 
 
@@ -154,16 +183,14 @@ def covid(message):
         bot.send_message(message.chat.id, 'Grafiğiniz hazırlanılıyor')
         h = 20
         w = 8
-        c = 'turkey'
         d = '_'
-        get = 'Active'
-        gets = {
-            'active': 'Active cases',
-            'deaths': 'Deaths',
-            'confirmed': 'Total cases',
-            'recovered': 'Recovered',
-            'new': 'New cases'
-        }
+        get = 'gunluk_vaka'
+        gets = [
+            'gunluk_vaka',
+            'gunluk_test',
+            'gunluk_iyilesen',
+            'gunluk_vefat'
+        ]
         none = ['_', '-']
         if len(message.text.split()) > 1:
             if message.text.split()[1] in none:
@@ -171,18 +198,16 @@ def covid(message):
             else:
                 if message.text.split()[1]:
                     try:
-                        temp = str(translator.translate(
-                            str(message.text.split()[1]), dest='en').text)
-                        if temp in gets:
-                            get = temp
+                        if get in gets:
+                            get = 'gunluk_' + message.text.split()[1]
                         else:
                             bot.send_message(
-                                message.chat.id, 'Bilinmeyen değişken ' + str(message.text.split()[1]) + ' veya ' + translator.translate(message.text.split()[1], dest='en').text.capitalize())
+                                message.chat.id, 'Bilinmeyen değişken ' + str(message.text.split()[1]))
                             return
 
-                    except:
+                    except Exception as e:
                         bot.send_message(
-                            message.chat.id, 'Bir sorunla karşılaştık. Lütfen bir daha deneyin')
+                            message.chat.id, 'Bir sorunla karşılaştık. Lütfen bir daha deneyin\n' + str(e))
                         return
             if len(message.text.split()) > 2:
                 if message.text.split()[2] in none:
@@ -194,14 +219,8 @@ def covid(message):
                         pass
                     else:
                         w = int(message.text.split()[3])
-                    if len(message.text.split()) > 4:
-                        if message.text.split()[4] in none:
-                            pass
-                        else:
-                            c = translator.translate(message.text.split()[
-                                                     4], dest='en').text.lower()
 
-        temp_curve = curve(get=get.capitalize(), h=h, w=w, c=c)
+        temp_curve = curve(get=get, h=h, w=w)
         mojis = ['🟩', '🟨', '🟧', '🟥']
         res = ''
         for i in temp_curve:

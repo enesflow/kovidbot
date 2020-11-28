@@ -45,7 +45,8 @@ def corona():
         try:
             print("Checking")
             temp = gethtml(url)
-            if str(datetime.date.today()) not in temp[-1]['Date']:
+            print(temp[-1]['Date'])
+            if not str(datetime.date.today()) in temp[-1]['Date']:
                 checked = False
             if not checked and str(datetime.date.today()) in temp[-1]['Date']:
                 print("Now")
@@ -208,8 +209,6 @@ def covid(message):
             res += (
                 f"{math.ceil(j) * mojis[math.floor(i / (max(temp_curve) / (len(mojis) - 1)))]}\n")
 
-        bot.send_message(
-            message.chat.id, f'''{translator.translate(c, dest='tr').text.capitalize()} ülkesisin {translator.translate(gets[get.lower()], dest='tr').text} grafiği''')
         bot.send_message(message.chat.id, res)
     except Exception as e:
         bot.send_message(

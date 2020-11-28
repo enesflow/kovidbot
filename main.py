@@ -18,7 +18,7 @@ url = "https://api.covid19api.com/total/dayone/country/turkey"
 admin = 1155586242
 people = [1155586242, 1221177293]
 
-delay = {18: 30, 19: 15, 20: 7.5, 21: 3, 100: 1000}
+delay = {18: 300, 19: 120, 20: 60, 21: 15, 100: 1000}
 delayfor = None
 
 today = datetime.date.today()

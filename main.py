@@ -92,8 +92,17 @@ def curve(get='Active', h=15, w=8, c='turkey'):
 
     api_data = gethtml(url)
     all_active = []
-    for i in api_data:
-        all_active.append(i[get])
+    if get.lower() == 'new':
+        api_data.insert(0, {'Active': 0, 'Recovered': 0})
+        temp = api_data[0]
+        for i in api_data[1:]:
+            # - api_data[i-1]['Active'])
+            all_active.append((i['Active'] - temp['Active']) +
+                              ((i['Recovered'] - temp['Recovered'])))
+            temp = i
+    else:
+        for i in api_data:
+            all_active.append(i[get])
 
     big_round = math.ceil(len(all_active) / h)
     split_active = split(all_active, value=big_round)
@@ -103,6 +112,7 @@ def curve(get='Active', h=15, w=8, c='turkey'):
     case_round = max(av_active) / w
     for i in range(len(av_active)):
         av_active[i] = math.ceil(av_active[i] / case_round)
+    from pprint import pprint
     return av_active
 
 
@@ -150,11 +160,11 @@ def covid(message):
         d = '_'
         get = 'Active'
         gets = {
-            'Active': 'Active cases',
-            'Deaths': 'Deaths',
-            'Confirmed': 'Total cases',
-            'Recovered': 'Recovered',
-            'Date': 'Date'
+            'active': 'Active cases',
+            'deaths': 'Deaths',
+            'confirmed': 'Total cases',
+            'recovered': 'Recovered',
+            'new': 'New cases'
         }
         none = ['_', '-']
         if len(message.text.split()) > 1:
@@ -162,12 +172,19 @@ def covid(message):
                 pass
             else:
                 if message.text.split()[1]:
-                    if translator.translate(message.text.split()[1], dest='en').text.capitalize() in gets:
-                        get = translator.translate(
-                            message.text.split()[1], dest='en').text.capitalize()
-                    else:
+                    try:
+                        temp = str(translator.translate(
+                            str(message.text.split()[1]), dest='en').text)
+                        if temp in gets:
+                            get = temp
+                        else:
+                            bot.send_message(
+                                message.chat.id, 'Bilinmeyen değişken ' + str(message.text.split()[1]) + ' veya ' + translator.translate(message.text.split()[1], dest='en').text.capitalize())
+                            return
+
+                    except:
                         bot.send_message(
-                            message.chat.id, 'Bilinmeyen değişken ' + str(message.text.split()[1]) + ' veya ' + translator.translate(message.text.split()[1], dest='en').text.capitalize())
+                            message.chat.id, 'Bir sorunla karşılaştık. Lütfen bir daha deneyin')
                         return
             if len(message.text.split()) > 2:
                 if message.text.split()[2] in none:
@@ -190,11 +207,12 @@ def covid(message):
         mojis = ['🟩', '🟨', '🟧', '🟥']
         res = ''
         for i in temp_curve:
+            j = 2 if i < 0 else i
             res += (
-                f"{i * mojis[math.floor(i / (max(temp_curve) / (len(mojis) - 1)))]}\n")
+                f"{math.ceil(j) * mojis[math.floor(i / (max(temp_curve) / (len(mojis) - 1)))]}\n")
 
         bot.send_message(
-            message.chat.id, f'''{translator.translate(c, dest='tr').text.capitalize()} ülkesisin {translator.translate(gets[get], dest='tr').text} grafiği''')
+            message.chat.id, f'''{translator.translate(c, dest='tr').text.capitalize()} ülkesisin {translator.translate(gets[get.lower()], dest='tr').text} grafiği''')
         bot.send_message(message.chat.id, res)
     except Exception as e:
         bot.send_message(

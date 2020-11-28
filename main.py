@@ -47,14 +47,13 @@ def corona():
     global api
     while True:
         try:
-            print("Checking")
 
             temp = gethtml(url)[0]
 
             # print(temp['tarih'])
 
             d = datetime.datetime.today().strftime("%d.%m.%Y")
-            #d = '28.11.2020'
+            # d = '28.11.2020'
             if d != temp['tarih']:
                 checked = False
 

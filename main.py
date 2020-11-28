@@ -34,6 +34,8 @@ def gethtml(url, timeout=5, rplc=""):
 
 api = [69]
 
+checked = False
+
 
 def corona():
     global today
@@ -43,9 +45,10 @@ def corona():
         try:
             print("Checking")
             temp = gethtml(url)
-            if str(datetime.date.today()) in temp[-1]['Date']:
+            if str(datetime.date.today()) not in temp[-1]['Date']:
+                checked = False
+            if not checked and str(datetime.date.today()) in temp[-1]['Date']:
                 print("Now")
-                newDay = False
 
                 for person in people:
                     bot.send_message(person, "🦠")
@@ -53,6 +56,7 @@ def corona():
                         person,
                         f'Tarih {today}\n\n😷 Vaka\t{list(api)[-1]["Confirmed"] - list(api)[-2]["Confirmed"]}\n☠ Vefat\t{list(api)[-1]["Deaths"] - list(api)[-2]["Deaths"]}\n😁 İyileşen\t{list(api)[-1]["Recovered"] - list(api)[-2]["Recovered"]}'
                     )
+                checked = True
 
             else:
                 print("Not now")

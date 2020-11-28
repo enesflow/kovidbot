@@ -29,8 +29,6 @@ def gethtml(url, timeout=5, rplc=""):
         soup = BeautifulSoup(page.content, "html.parser")
         cont = str(soup.findAll('script')
                    [-1])[67:].replace('</script>', '').replace(';//]]>', '')
-        from pyperclip import copy
-        copy(cont)
     except Exception as e:
         bot.send_message(admin, e)
         return [0]

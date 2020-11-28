@@ -54,6 +54,7 @@ def corona():
             # print(temp['tarih'])
 
             d = datetime.datetime.today().strftime("%d.%m.%Y")
+            #d = '28.11.2020'
             if d != temp['tarih']:
                 checked = False
 

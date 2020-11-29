@@ -1,2 +1,3 @@
 pytelegrambotapi
 bs4
+pyshorteners

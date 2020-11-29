@@ -1,4 +1,5 @@
 import telebot
+from telebot import types
 import time
 import requests
 import json
@@ -14,7 +15,7 @@ bot = telebot.TeleBot(TOKEN)
 url = 'https://covid19.saglik.gov.tr/TR-66935/genel-koronavirus-tablosu.html'
 
 admin = 1155586242
-people = [1155586242, 1221177293]
+people = [1155586242, 1221177293, 1011787005]
 
 t = 60
 delay = {18: t * 10, 19: t * 5, 20: t * 2, 21: t, 100: t * 25}
@@ -36,68 +37,90 @@ def gethtml(url, timeout=5, rplc=""):
 
 
 api = [69]
-
 checked = False
+message = None
+covid_data = None
 
 
-def corona():
+def getcovid():
     global checked
     global delayfor
     global api
-    while True:
-        try:
+    global message
+    global covid_data
+    try:
+        now = False
+        print('checking')
 
-            temp = gethtml(url)[0]
+        temp = gethtml(url)[0]
 
-            # print(temp['tarih'])
+        case = int(temp['gunluk_hasta'].replace('.', ''))
+        if temp['gunluk_vaka']:
+            case += int(temp['gunluk_vaka'].replace('.', ''))
+        covid_data = {
 
-            d = datetime.datetime.today().strftime("%d.%m.%Y")
-            # d = '28.11.2020'
-            if d != temp['tarih']:
-                checked = False
+            'test': temp['gunluk_test'].replace('.', ''),
+            'vaka': case,
+            'vefat': temp['gunluk_vefat'].replace('.', ''),
+            'iyilesen': temp['gunluk_iyilesen'].replace('.', ''),
+            'tarih': temp['tarih']
 
-            else:
-                if not checked:
-                    print('now')
-                    checked = True
-                    case = int(temp['gunluk_hasta'].replace('.', ''))
-                    if temp['gunluk_vaka']:
-                        case += int(temp['gunluk_vaka'].replace('.', ''))
-
-                    message = f'''Hey! Koronavirüs Tablosu Açıklandı
-
-📅 Tarih {temp['tarih']}
+        }
+        message = f'''📅 Tarih {covid_data['tarih']}
 
 
-😷 Test sayısı: {temp['gunluk_test'].replace('.', '')}
-🤒 Vaka sayısı: {case}
-💀 Vefat sayısı: {temp['gunluk_vefat'].replace('.', '')}
-💉 İyileşen sayısı: {temp['gunluk_iyilesen'].replace('.', '')}
+😷 Test sayısı: {covid_data['test']}
+🤒 Vaka sayısı: {covid_data['vaka']}
+💀 Vefat sayısı: {covid_data['vefat']}
+💉 İyileşen sayısı: {covid_data['iyilesen']}
                     '''
 
-                    for i in people:
-                        bot.send_message(i, '🦠')
-                        bot.send_message(i, message)
+        # print(temp['tarih'])
 
-            # print("Checked")
-            delayfor = delay[100]
-            for i in delay:
-                try:
-                    if int(datetime.datetime.now().hour) >= int(i):
-                        delayfor = delay[i]
-                    if checked == True:
-                        delayfor = delay[100]
-                except Exception as e:
-                    print(e)
+        d = datetime.datetime.today().strftime("%d.%m.%Y")
+        # d = '28.11.2020'
+        if d != covid_data['tarih']:
+            checked = False
+
+        else:
+            if not checked:
+                print('now')
+                now = True
+                checked = True
+
+                print(covid_data)
+
+        print("Checked")
+        return [now, message, covid_data]
+    except Exception as e:
+        print(e)
+        return [False, 'Error', covid_data]
+
+
+def corona():
+    while True:
+
+        c = getcovid()
+        if c[0]:
+            for i in people:
+                bot.send_message(i, '🦠')
+                bot.send_message(
+                    i, 'Hey! Günlük Kovid 19 Tablosu Açıklandı\n' + c[1])
+
+        delayfor = delay[100]
+        for i in delay:
+            try:
+                if int(datetime.datetime.now().hour) >= int(i):
+                    delayfor = delay[i]
+                if checked == True:
                     delayfor = delay[100]
-                    bot.send_message(admin, e)
+            except Exception as e:
+                print(e)
+                delayfor = delay[100]
+                bot.send_message(admin, e)
 
-            # print(delayfor)
-            time.sleep(delayfor)
-        except Exception as e:  # Exception as e
-            # print(e)
-            time.sleep(delay[100])
-            # bot.send_message(1155586242, f"ERROR\n{e}")
+        print(delayfor)
+        time.sleep(delayfor)
 
 #
 # Get curve
@@ -252,7 +275,7 @@ def giris(message):
 def cikis(message):
     try:
         if message.chat.id in people:
-            people.remove(message.chat.id)
+            people.remove(message. chat.id)
             bot.send_message(message.chat.id, "👌🏻")
             bot.send_message(message.chat.id, "Çıkış başarıyla tamamlandı")
         else:
@@ -273,10 +296,26 @@ def lst(message):
             message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
 
+@bot.inline_handler(lambda query: query.query == '19')
+def tablo(inline_query):
+    try:
+        temp = getcovid()
+        r = types.InlineQueryResultArticle(
+            '1',
+            '📅 ' + temp[2]['tarih'] + ' 📅',
+            types.InputTextMessageContent(
+                temp[2]['tarih'] + ' Tarihi için kovid 19 tablosu: \n\n' + temp[1] + '\n\nKovid 19 hakkında günlük bilgi almak için @kovidbot')
+        )
+
+        bot.answer_inline_query(inline_query.id, [r])
+    except Exception as e:
+        print(e)
+
+
 def poll():
     while True:
         try:
-            bot.polling()
+            bot.polling(True)
         except Exception as e:
             print(e)
             time.sleep(5)

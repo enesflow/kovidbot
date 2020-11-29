@@ -7,7 +7,9 @@ import datetime
 from threading import Thread
 import math
 from bs4 import BeautifulSoup
+import pyshorteners
 
+shortener = pyshorteners.Shortener()
 
 TOKEN = "1347961551:AAELXJVajybRigjjXcZvqR-LGOrWC9t1zeE"
 bot = telebot.TeleBot(TOKEN)
@@ -18,10 +20,21 @@ admin = 1155586242
 people = [1155586242, 1221177293, 1011787005]
 
 t = 60
-delay = {18: t * 10, 19: t * 5, 20: t * 2, 21: t, 100: t * 25}
+delay = {18: t * 10, 19: t * 5, 20: t * 2, 21: t, 100: t * 15}
 delayfor = None
 
 today = datetime.date.today()
+
+
+def format(number):
+    res = ''
+    j = 0
+    for i in str(number)[::-1]:
+        res += i
+        j += 1
+        if j % 3 == 0 and len(str(number)) - j != 0:
+            res += ','
+    return res[::-1]
 
 
 def gethtml(url, timeout=5, rplc=""):
@@ -59,10 +72,10 @@ def getcovid():
             case += int(temp['gunluk_vaka'].replace('.', ''))
         covid_data = {
 
-            'test': temp['gunluk_test'].replace('.', ''),
-            'vaka': case,
-            'vefat': temp['gunluk_vefat'].replace('.', ''),
-            'iyilesen': temp['gunluk_iyilesen'].replace('.', ''),
+            'test': format(temp['gunluk_test'].replace('.', '')),
+            'vaka': format(case),
+            'vefat': format(temp['gunluk_vefat'].replace('.', '')),
+            'iyilesen': format(temp['gunluk_iyilesen'].replace('.', '')),
             'tarih': temp['tarih']
 
         }
@@ -296,7 +309,7 @@ def lst(message):
             message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
 
-@bot.inline_handler(lambda query: query.query == '19')
+@bot.inline_handler(lambda query: query.query == 'tablo')
 def tablo(inline_query):
     try:
         temp = getcovid()
@@ -308,6 +321,44 @@ def tablo(inline_query):
         )
 
         bot.answer_inline_query(inline_query.id, [r])
+    except Exception as e:
+        print(e)
+
+
+@bot.inline_handler(lambda query: query.query == 'haber')
+def tablo(inline_query):
+    try:
+        url = ('http://newsapi.org/v2/top-headlines?'
+               'q=Koronavirüs&'
+               'country=tr&'
+               'apiKey=96e467029c384c26a9a57424450cbef5')
+        response = requests.get(url)
+        news = {'news': response.json()['articles']}
+        sorted_obj = news
+
+        sorted_obj['news'] = sorted(
+            news['news'], key=lambda x: x['publishedAt'], reverse=True)
+
+        r = []
+        j = 0
+        for i in sorted_obj['news']:
+            j += 1
+            r.append(types.InlineQueryResultPhoto(
+                str(j),
+                i['urlToImage'],
+                i['urlToImage'],
+                title=i['title'].strip(),
+
+                input_message_content=types.InputTextMessageContent(
+                    f'''{i['title'].strip()}
+                    
+{i['description'].strip()}
+
+
+Haberin tamamını okumak için hemen tıklayın: {shortener.tinyurl.short(i['url'].strip())}'''
+                )
+            ))
+        bot.answer_inline_query(inline_query.id, r, cache_time=1)
     except Exception as e:
         print(e)
 

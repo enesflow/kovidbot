@@ -8,7 +8,7 @@ import math
 from bs4 import BeautifulSoup
 
 
-TOKEN = "1128846573:AAEOPz-8xmOY7dA5iiqFdkS_Gy4MZfOPiwY"
+TOKEN = "1347961551:AAELXJVajybRigjjXcZvqR-LGOrWC9t1zeE"
 bot = telebot.TeleBot(TOKEN)
 
 url = 'https://covid19.saglik.gov.tr/TR-66935/genel-koronavirus-tablosu.html'

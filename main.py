@@ -19,8 +19,8 @@ url = 'https://covid19.saglik.gov.tr/TR-66935/genel-koronavirus-tablosu.html'
 admin = 1155586242
 people = [1155586242, 1221177293, 1011787005]
 
-t = 60
-delay = {18: t * 10, 19: t * 5, 20: t * 2, 21: t, 100: t * 15}
+t = 5
+delay = {18: t * 10, 19: t * 5, 20: t * 2, 21: t, 100: 1000}
 delayfor = None
 
 today = datetime.date.today()
@@ -123,7 +123,7 @@ def corona():
         delayfor = delay[100]
         for i in delay:
             try:
-                if int(datetime.datetime.now().hour) >= int(i):
+                if int(datetime.datetime.utcnow().hour + 3) >= int(i):
                     delayfor = delay[i]
                 if checked == True:
                     delayfor = delay[100]

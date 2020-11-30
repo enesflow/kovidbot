@@ -249,21 +249,75 @@ def curve(get='gunluk_vaka', h=15, w=8):
 @ bot.message_handler(commands=["start"])
 def start(message):
     try:
-        bot.reply_to(message, "Hello There")
+        bot.send_message(
+            message.chat.id, f"Merhaba {message.from_user.first_name}! Lütfen yardım için /help veya /yardim yazın.")
     except Exception as e:
         bot.send_message(
             message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
-# Command to get chat id
+# Start command
 
 
-@ bot.message_handler(commands=["chatid"])
-def chatid(message):
+@ bot.message_handler(commands=["help", "yardim"])
+def start(message):
     try:
-        bot.reply_to(message, f"Your chat id is {message.chat.id}")
+        bot.send_message(message.chat.id, f'''
+🖐 Merhaba {message.from_user.first_name}. 
+
+
+👍Temel komutlar:
+
+✅ Günlük Kovid 19 Tablosunu almak için /giris yazın
+🛑 Günlük Kovid 19 Tablosunu almayı durdurmak için /cikis yazın
+
+
+🦠Kovid 19 Türkiye grafiği:
+
+🙂Varsayılan kullanım:
+    Varsayılan kullanım için /covid yazın
+    Varsayılan kullanım;
+    1️⃣5️⃣ Uzunluğu 15 blok
+    0️⃣8️⃣ Genişliği 8 blok olmak üzere
+    😷🤒 Türkiyenin günlük vaka grafiğini gönderir
+    _Günlük vaka ve hasta toplamını gönderir_
+⚙️Gelişmiş Kullanım:
+    Gelişmiş kullanım için /covid yazın ve gerekli bilgileri girin
+    /covid <almak istediğiniz bilgi> <uzunluk> <genişlik>
+    ℹ️Eğer bir bilgiyi varsayılan olarak kullanmak istiyorsanız - yazabilirsini
+    ❓Örnek kullanım:
+        /covid vaka 25 5
+        /covid iyilesen 50 15
+        /covid vaka - 10
+    💁Alabileceğiniz bilgiler:
+        vaka _Bu günlük vaka ve günlük hastanın toplam sayısını verir_
+        vefat _Bu günlük vefat sayısını verir_
+        iyilesen _Bu günlük iyileşen sayısını verir_
+        test _Bu günlük test sayısını verir_
+        
+
+⌨Satır içi komutlar:
+
+ℹSatır içi komutlar nelerdir?
+    🔴Özel sohbetler veya gruplarda Satır içi komutlar kullanarak bot ile iletişime geçebilirsiniz
+    🟠Sadece @kovidbot adlı botumuzu etiketleyin ve yanına aşağıdaki komutlardan birini yazın
+
+🦠Kovid 19 Tablosu:
+    En son kovid 19 tablosunu almak için @kovidbot tablo yazabilirsiniz 
+    Bu komut yazı yazma kutucuğunuzun mevcut olan en yeni kovid 19 tablosunun tarihini gösterecektir
+    Bu tarihe tıklayarak o tarihteki kovid 19 tablosunu isteğiniz birine gönderebilirsiniz
+
+📰En güncel haberler:
+    Kovid 19 Hakkında en güncel haberleri almak için @kovidbot haber yazabilirsiniz
+    Bunun çalışması birkaç saniye sürebilir
+    Bu komut yazı yazma kutucuğunuzun üstünde birkaç resim gösterecektir
+    Bunlardan birine tıklayarak o haberi istediğiniz birine gönderebilirsiniz
+
+
+        ''', parse_mode='Markdown')
     except Exception as e:
         bot.send_message(
             message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
+
 
 # Command to get curve
 
@@ -272,7 +326,7 @@ def chatid(message):
 def covid(message):
     try:
         bot.send_message(message.chat.id, 'Grafiğiniz hazırlanılıyor')
-        h = 20  # height
+        h = 15  # height
         w = 8  # width
         get = 'gunluk_vaka'  # Thing to get
         gets = [
@@ -280,16 +334,16 @@ def covid(message):
             'gunluk_test',
             'gunluk_iyilesen',
             'gunluk_vefat'
-        ]  # All avaible things to get
+        ]  # All available things to get
         # The user will put one of these if he/she wants the default value
-        none = ['_', '-']
+        none = ['-']
         # If the user specified the thing to get
         if len(message.text.split()) > 1:
             if message.text.split()[1] in none:
                 pass
             else:
                 if message.text.split()[1]:
-                    # Check if it is avaible
+                    # Check if it is available
                     try:
                         if get in gets:
                             get = 'gunluk_' + message.text.split()[1]
@@ -397,14 +451,19 @@ def cikis(message):
 def lst(message):
     try:
         bot.send_message(message.chat.id, 'Lütfen biraz bekleyin...')
-        # Get the database
-        temp = getdb()
-        # Prettify it
-        p = ''
-        for i in temp:
-            p += str(i) + '\n'
-        # Send
-        bot.reply_to(message, p)
+        # Check if the user is admin (me)
+        if message.chat.id == admin:
+            # Get the database
+            temp = getdb()
+            # Prettify it
+            p = ''
+            for i in temp:
+                p += str(i) + '\n'
+            # Send
+            bot.reply_to(message, p)
+        else:
+            bot.send_message(
+                message.chat.id, 'Bu komutu kullanabilmek için admin olmalısınız')
     except Exception as e:
         bot.send_message(
             message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
@@ -424,7 +483,8 @@ def tablo(inline_query):
             '📅 ' + temp[2]['tarih'] + ' 📅',
             # Content
             types.InputTextMessageContent(
-                temp[2]['tarih'] + ' Tarihi için kovid 19 tablosu: \n' + temp[1] + '\n\nKovid 19 hakkında günlük bilgi almak için @kovidbot')
+                temp[2]['tarih'] + ' Tarihi için kovid 19 tablosu: \n' + temp[1] + '\n\nKovid 19 hakkında günlük bilgi almak için @kovidbot'),
+            thumb_url='https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/image.png?token=APVMWC6KFLK4N77RVE2BKIK7YTVYU'
         )
         # Answer the inline command
         bot.answer_inline_query(inline_query.id, [r])
@@ -458,12 +518,10 @@ def tablo(inline_query):
         for i in sorted_obj['news']:
             j += 1
             # Add photo to inline command
-            r.append(types.InlineQueryResultPhoto(
+            r.append(types.InlineQueryResultArticle(
                 str(j),  # Index
-                i['urlToImage'],  # Url to image
-                i['urlToImage'],  # Url to image
-                title=i['title'].strip(),  # Title
-
+                i['title'].strip(),  # Title
+                thumb_url=i['urlToImage'],  # Url to image
                 # The content of the news
                 input_message_content=types.InputTextMessageContent(
                     f'''{i['title'].strip()}

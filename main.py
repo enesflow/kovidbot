@@ -347,8 +347,11 @@ def giris(message):
         bot.send_message(message.chat.id, 'Lütfen biraz bekleyin...')
         # Get all the people in our database
         temp = getdb()
+        ids = []
+        for i in temp:
+            ids.append(i['_id'])
         # Check if the user is already entered
-        if message.chat.id in temp:
+        if message.chat.id in ids:
             bot.send_message(message.chat.id, "👎🏻")
             bot.send_message(
                 message.chat.id, "Zaten listede adınız bulunmakta")
@@ -372,11 +375,14 @@ def cikis(message):
         bot.send_message(message.chat.id, 'Lütfen biraz bekleyin...')
         # Get all the people in our database
         temp = getdb()
+        ids = []
+        for i in temp:
+            ids.append(i['_id'])
         # Check if the user is in our database
-        if message.chat.id in temp:
+        if message.chat.id in ids:
             # Remove user from our database
             collection.remove(
-                {'_id': message.chat.id, 'name': message.from_user.first_name})
+                {'_id': message.chat.id})
             bot.send_message(message.chat.id, "👌🏻")
             bot.send_message(message.chat.id, "Çıkış başarıyla tamamlandı")
         # If not

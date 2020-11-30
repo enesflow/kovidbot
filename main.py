@@ -6,6 +6,7 @@ import json
 import datetime
 from threading import Thread
 import math
+import os
 from bs4 import BeautifulSoup
 import pyshorteners
 import pymongo
@@ -15,24 +16,19 @@ from pymongo import MongoClient
 shortener = pyshorteners.Shortener()
 
 # Bot
-TOKEN = "1347961551:AAELXJVajybRigjjXcZvqR-LGOrWC9t1zeE"
+TOKEN = os.environ['TOKEN']
 bot = telebot.TeleBot(TOKEN)
 
 # Covid URL
 url = 'https://covid19.saglik.gov.tr/TR-66935/genel-koronavirus-tablosu.html'
 
 # Default People
-admin = 1155586242
-people = {1155586242: 'Enes', 1221177293: 'Süreyya', 1011787005: 'İbrahim'}
+admin = int(os.environ['ADMIN'])
+people = {admin: 'Enes'}
 
-# Get mongodb password
-with open('mongo.txt', 'r') as f:
-    lines = f.readlines()
-    mongopassword = lines[0]
 
 # Mongodb stuff
-cluster = MongoClient(
-    f'mongodb+srv://admin:{mongopassword}@kovidbot.ksmsj.mongodb.net/kovidbot?retryWrites=true&w=majority')
+cluster = MongoClient(os.environ['MONGO'])
 db = cluster['kovid']
 collection = db['people']
 

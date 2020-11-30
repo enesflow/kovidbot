@@ -8,6 +8,9 @@ from threading import Thread
 import math
 from bs4 import BeautifulSoup
 import pyshorteners
+import pymongo
+from pymongo import MongoClient
+
 
 shortener = pyshorteners.Shortener()
 
@@ -17,18 +20,44 @@ bot = telebot.TeleBot(TOKEN)
 url = 'https://covid19.saglik.gov.tr/TR-66935/genel-koronavirus-tablosu.html'
 
 admin = 1155586242
-people = [1155586242, 1221177293, 1011787005]
+people = {1155586242: 'Enes', 1221177293: 'Süreyya', 1011787005: 'İbrahim'}}
 
-t = 5
-delay = {18: t * 10, 19: t * 5, 20: t * 2, 21: t, 100: 1000}
-delayfor = None
+with open('mongo.txt', 'r') as f:
+    lines = f.readlines()
+    mongopassword = lines[0]
+cluster = MongoClient(
+    f'mongodb+srv://admin:{mongopassword}@kovidbot.ksmsj.mongodb.net/kovidbot?retryWrites=true&w=majority')
+db=cluster['kovid']
+collection=db['people']
 
-today = datetime.date.today()
+
+print('adding people')
+for i in people:
+    try:
+        collection.insert_one({'_id': i, 'name': people[i]})
+    except Exception as e:
+        if 'duplicate key error collection' in str(e):
+            pass
+        else:
+            bot.send_message(admin, 'Error ' + str(e))
+
+
+print('Done')
+t=5
+delay={18: t * 10, 19: t * 5, 20: t * 2, 21: t, 100: 1000}
+delayfor=None
+
+today=datetime.date.today()
+
+
+def send_to(chat, messages):
+    for i in messages:
+        bot.send_message(chat, i)
 
 
 def format(number):
-    res = ''
-    j = 0
+    res=''
+    j=0
     for i in str(number)[::-1]:
         res += i
         j += 1
@@ -37,11 +66,11 @@ def format(number):
     return res[::-1]
 
 
-def gethtml(url, timeout=5, rplc=""):
+def gethtml(url, timeout = 5, rplc = ""):
     try:
-        page = requests.get(url)
-        soup = BeautifulSoup(page.content, "html.parser")
-        cont = str(soup.findAll('script')
+        page=requests.get(url)
+        soup=BeautifulSoup(page.content, "html.parser")
+        cont=str(soup.findAll('script')
                    [-1])[67:].replace('</script>', '').replace(';//]]>', '')
     except Exception as e:
         bot.send_message(admin, e)
@@ -49,10 +78,10 @@ def gethtml(url, timeout=5, rplc=""):
     return json.loads(str(cont))
 
 
-api = [69]
-checked = False
-message = None
-covid_data = None
+api=[69]
+checked=False
+message=None
+covid_data=None
 
 
 def getcovid():
@@ -62,15 +91,15 @@ def getcovid():
     global message
     global covid_data
     try:
-        now = False
+        now=False
         print('checking')
 
-        temp = gethtml(url)[0]
+        temp=gethtml(url)[0]
 
-        case = int(temp['gunluk_hasta'].replace('.', ''))
+        case=int(temp['gunluk_hasta'].replace('.', ''))
         if temp['gunluk_vaka']:
             case += int(temp['gunluk_vaka'].replace('.', ''))
-        covid_data = {
+        covid_data={
 
             'test': format(temp['gunluk_test'].replace('.', '')),
             'vaka': format(case),
@@ -115,10 +144,12 @@ def corona():
 
         c = getcovid()
         if c[0]:
-            for i in people:
-                bot.send_message(i, '🦠')
-                bot.send_message(
-                    i, 'Hey! Günlük Kovid 19 Tablosu Açıklandı\n' + c[1])
+            temp = []
+            for i in collection.find({}):
+                temp.append(i)
+            for i in temp:
+                Thread(target=send_to, args=[i['_id'], [
+                       '🦠', f'Hey {i["name"]}! Günlük Kovid 19 Tablosu Açıklandı\n{c[1]}']]).start()
 
         delayfor = delay[100]
         for i in delay:
@@ -271,12 +302,17 @@ def covid(message):
 @ bot.message_handler(commands=["giris"])
 def giris(message):
     try:
-        if message.chat.id in people:
+        bot.send_message(message.chat.id, 'Lütfen biraz bekleyin...')
+        temp = []
+        for i in collection.find({}):
+            temp.append(i['_id'])
+        if message.chat.id in temp:
             bot.send_message(message.chat.id, "👎🏻")
             bot.send_message(
                 message.chat.id, "Zaten listede adınız bulunmakta")
         else:
-            people.append(message.chat.id)
+            collection.insert_one(
+                {'_id': message.chat.id, 'name': message.from_user.first_name})
             bot.send_message(message.chat.id, "👌🏻")
             bot.send_message(message.chat.id, "Giriş başarıyla tamamlandı")
     except Exception as e:
@@ -287,8 +323,13 @@ def giris(message):
 @ bot.message_handler(commands=["cikis"])
 def cikis(message):
     try:
-        if message.chat.id in people:
-            people.remove(message. chat.id)
+        bot.send_message(message.chat.id, 'Lütfen biraz bekleyin...')
+        temp = []
+        for i in collection.find({}):
+            temp.append(i['_id'])
+        if message.chat.id in temp:
+            collection.remove(
+                {'_id': message.chat.id, 'name': message.from_user.first_name})
             bot.send_message(message.chat.id, "👌🏻")
             bot.send_message(message.chat.id, "Çıkış başarıyla tamamlandı")
         else:
@@ -303,13 +344,17 @@ def cikis(message):
 @ bot.message_handler(commands=["list"])
 def lst(message):
     try:
-        bot.reply_to(message, str(people))
+        bot.send_message(message.chat.id, 'Lütfen biraz bekleyin...')
+        temp = []
+        for i in collection.find({}):
+            temp.append(i)
+        bot.reply_to(message, str(temp))
     except Exception as e:
         bot.send_message(
             message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
 
 
-@bot.inline_handler(lambda query: query.query == 'tablo')
+@ bot.inline_handler(lambda query: query.query == 'tablo')
 def tablo(inline_query):
     try:
         temp = getcovid()
@@ -325,7 +370,7 @@ def tablo(inline_query):
         print(e)
 
 
-@bot.inline_handler(lambda query: query.query == 'haber')
+@ bot.inline_handler(lambda query: query.query == 'haber')
 def tablo(inline_query):
     try:
         url = ('http://newsapi.org/v2/top-headlines?'
@@ -351,11 +396,11 @@ def tablo(inline_query):
 
                 input_message_content=types.InputTextMessageContent(
                     f'''{i['title'].strip()}
-                    
+
 {i['description'].strip()}
 
 
-Haberin tamamını okumak için hemen tıklayın: {shortener.tinyurl.short(i['url'].strip())}'''
+Haberin tamamını okumak için hemen tıklayın: {shortener.dagd.short(i['url'].strip())}'''
                 )
             ))
         bot.answer_inline_query(inline_query.id, r, cache_time=1)

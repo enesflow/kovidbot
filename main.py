@@ -13,8 +13,7 @@ import pymongo
 from pymongo import MongoClient
 
 cache = {
-    'tablo': None,
-    'grafik': None
+    'tablo': None
 }
 
 # Url Shortener
@@ -193,15 +192,8 @@ def getcovid():
 
 
 def send_curve(id, data):
-    with open('checked.txt', 'r') as f:
-        checked = f.readlines()[0]
 
-    if checked and not cache['grafik']:
-        # Temp value for the curve
-        temp_curve = curve(get=data['get'], h=data['h'], w=data['w'])
-        cache['grafik'] = temp_curve
-    else:
-        temp_curve = cache['grafik']
+    temp_curve = curve(get=data['get'], h=data['h'], w=data['w'])
     # Emojis short -> long
     mojis = ['🟩', '🟨', '🟧', '🟥']
     res = ''

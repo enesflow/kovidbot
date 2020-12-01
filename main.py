@@ -12,6 +12,11 @@ import pyshorteners
 import pymongo
 from pymongo import MongoClient
 
+cache = {
+    'tablo': None,
+    'grafik': None
+}
+
 # Url Shortener
 shortener = pyshorteners.Shortener()
 
@@ -60,12 +65,16 @@ def format(number):
             res += ','
     return res[::-1]
 
+# A basic function to add to database to use multithreading
+
 
 def add_db(a):
     try:
         collection.insert_one(a)
     except Exception as e:
         print(e)
+
+# A basic function to delete from database to use multithreading
 
 
 def del_db(a):
@@ -115,13 +124,11 @@ print('Done')
 
 # Some variables for getcovid()
 api = [69]
-checked = False
 message = None
 covid_data = None
 
 
 def getcovid():
-    global checked
     global delayfor
     global api
     global message
@@ -161,21 +168,24 @@ def getcovid():
         # Check if the day has passed
         d = datetime.datetime.today().strftime("%d.%m.%Y")
         if d != covid_data['tarih']:
-            checked = False
+            with open('checked.txt', 'w') as f:
+                f.write('False')
 
         # If not
         else:
             # Check if we already checked
-            if not checked:
+            with open('checked.txt', 'r') as f:
+                checked = f.readlines()[0]
+            if checked == 'False':
                 # If not mark as checked
                 print('now')
                 now = True
-                checked = True
-
-                print(covid_data)
+                with open('checked.txt', 'w') as f:
+                    f.write('True')
 
         print("Checked")
         # Return
+        cache['tablo'] = [now, message, covid_data]
         return [now, message, covid_data]
     except Exception as e:
         print(e)
@@ -183,8 +193,15 @@ def getcovid():
 
 
 def send_curve(id, data):
-    # Temp value for the curve
-    temp_curve = curve(get=data['get'], h=data['h'], w=data['w'])
+    with open('checked.txt', 'r') as f:
+        checked = f.readlines()[0]
+
+    if checked and not cache['grafik']:
+        # Temp value for the curve
+        temp_curve = curve(get=data['get'], h=data['h'], w=data['w'])
+        cache['grafik'] = temp_curve
+    else:
+        temp_curve = cache['grafik']
     # Emojis short -> long
     mojis = ['🟩', '🟨', '🟧', '🟥']
     res = ''
@@ -220,7 +237,10 @@ def corona():
             try:
                 if int(datetime.datetime.utcnow().hour + 3) >= int(i):
                     delayfor = delay[i]
-                if checked == True:
+
+                with open('checked.txt', 'r') as f:
+                    checked = f.readlines()[0]
+                if checked == 'True':
                     delayfor = delay[100]
             except Exception as e:
                 print(e)
@@ -510,7 +530,7 @@ def lst(message):
 def tablo(inline_query):
     try:
         # Get the latest covid table
-        temp = getcovid()
+        temp = cache['tablo']
         # Make it an inline command
         r = types.InlineQueryResultArticle(
             '1',

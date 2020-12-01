@@ -32,19 +32,6 @@ cluster = MongoClient(os.environ['MONGO'])
 db = cluster['kovid']
 collection = db['people']
 
-# Insert default people
-print('adding people')
-for i in people:
-    try:
-        collection.insert_one({'_id': i, 'name': people[i]})
-    except Exception as e:
-        if 'duplicate key error collection' in str(e):
-            pass
-        else:
-            bot.send_message(admin, 'Error ' + str(e))
-
-
-print('Done')
 
 # Time
 t = 5
@@ -53,9 +40,13 @@ delayfor = None
 
 
 # A basic send message function to use multithreading
-def send_to(chat, messages):
+def send_multiple(chat, messages):
     for i in messages:
         bot.send_message(chat, i)
+
+
+def send_one(chat, message, mode='Markdown'):
+    bot.send_message(chat, message, parse_mode=mode)
 
 
 # Function to format a number like 123456 -> 123,456
@@ -68,6 +59,21 @@ def format(number):
         if j % 3 == 0 and len(str(number)) - j != 0:
             res += ','
     return res[::-1]
+
+
+def add_db(a):
+    try:
+        collection.insert_one(a)
+    except Exception as e:
+        print(e)
+
+
+def del_db(a):
+    try:
+        collection.delete_many(a)
+    except Exception as e:
+        print(e)
+
 
 # Function to convert our database into an array
 
@@ -92,6 +98,20 @@ def gethtml(url, timeout=5, rplc=""):
         return [0]
     return json.loads(str(cont))
 
+
+# Insert default people
+print('adding people')
+for i in people:
+    try:
+        Thread(target=add_db, args=({'_id': i, 'name': people[i]},)).start()
+    except Exception as e:
+        if 'duplicate key error collection' in str(e):
+            pass
+        else:
+            bot.send_message(admin, 'Error ' + str(e))
+
+
+print('Done')
 
 # Some variables for getcovid()
 api = [69]
@@ -162,6 +182,23 @@ def getcovid():
         return [False, 'Error', covid_data]
 
 
+def send_curve(id, data):
+    # Temp value for the curve
+    temp_curve = curve(get=data['get'], h=data['h'], w=data['w'])
+    # Emojis short -> long
+    mojis = ['🟩', '🟨', '🟧', '🟥']
+    res = ''
+    for i in temp_curve:
+        # Do this so the value will not be under 0
+        j = 1 if i < 0 else i
+        # Some math to calculate which emoji will come and add this to our string
+        res += (
+            f"{math.ceil(j) * mojis[math.floor(i / (max(temp_curve) / (len(mojis) - 1)))]}\n")
+
+    # Send it
+    bot.send_message(id, res)
+
+
 def corona():
     while True:
 
@@ -174,7 +211,7 @@ def corona():
 
             # Send messages to these people using multithreading
             for i in temp:
-                Thread(target=send_to, args=[i['_id'], [
+                Thread(target=send_multiple, args=[i['_id'], [
                        '🦠', f'Hey {i["name"]}! Günlük Kovid 19 Tablosu Açıklandı\n{c[1]}']]).start()
 
         # Delay
@@ -261,7 +298,7 @@ def start(message):
 @ bot.message_handler(commands=["help", "yardim"])
 def start(message):
     try:
-        bot.send_message(message.chat.id, f'''
+        Thread(None, send_one, None, (message.chat.id, f'''
 🖐 Merhaba {message.from_user.first_name}. 
 
 
@@ -313,7 +350,7 @@ def start(message):
     Bunlardan birine tıklayarak o haberi istediğiniz birine gönderebilirsiniz
 
 
-        ''', parse_mode='Markdown')
+        ''', 'Markdown',)).start()
     except Exception as e:
         bot.send_message(
             message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
@@ -345,7 +382,7 @@ def covid(message):
                 if message.text.split()[1]:
                     # Check if it is available
                     try:
-                        if get in gets:
+                        if 'gunluk_' + message.text.split()[1] in gets:
                             get = 'gunluk_' + message.text.split()[1]
                         else:
                             bot.send_message(
@@ -359,31 +396,30 @@ def covid(message):
 
             # If the user also specified the height
             if len(message.text.split()) > 2:
-                if message.text.split()[2] in none:
-                    pass
-                else:
-                    h = int(message.text.split()[2])
-                # If the user also specified the width
-                if len(message.text.split()) > 3:
-                    if message.text.split()[3] in none:
+                try:
+                    if message.text.split()[2] in none:
                         pass
                     else:
-                        w = int(message.text.split()[3])
+                        h = int(message.text.split()[2])
+                except:
+                    bot.send_message(
+                        message.chat.id, f'{message.text.split()[2]} bir sayı değildir')
+                    return
+                # If the user also specified the width
+                if len(message.text.split()) > 3:
+                    try:
+                        if message.text.split()[3] in none:
+                            pass
+                        else:
+                            w = int(message.text.split()[3])
+                    except:
+                        bot.send_message(
+                            message.chat.id, f'{message.text.split()[3]} bir sayı değildir')
+                        return
 
-        # Temp value for the curve
-        temp_curve = curve(get=get, h=h, w=w)
-        # Emojis short -> long
-        mojis = ['🟩', '🟨', '🟧', '🟥']
-        res = ''
-        for i in temp_curve:
-            # Do this so the value will not be under 0
-            j = 1 if i < 0 else i
-            # Some math to calculate which emoji will come and add this to our string
-            res += (
-                f"{math.ceil(j) * mojis[math.floor(i / (max(temp_curve) / (len(mojis) - 1)))]}\n")
+        Thread(None, send_curve, None, (message.chat.id,
+                                        {'get': get, 'h': h, 'w': w}, )).start()
 
-        # Send it
-        bot.send_message(message.chat.id, res)
     except Exception as e:
         bot.send_message(
             message.chat.id, 'Bir sorunla karşılaşıldı\n' + str(e))
@@ -408,8 +444,8 @@ def giris(message):
         # If not
         else:
             # Insert user to our database
-            collection.insert_one(
-                {'_id': message.chat.id, 'name': message.from_user.first_name})
+            Thread(target=add_db, args=(
+                {'_id': message.chat.id, 'name': message.from_user.first_name},)).start()
             bot.send_message(message.chat.id, "👌🏻")
             bot.send_message(message.chat.id, "Giriş başarıyla tamamlandı")
     except Exception as e:
@@ -431,8 +467,7 @@ def cikis(message):
         # Check if the user is in our database
         if message.chat.id in ids:
             # Remove user from our database
-            collection.remove(
-                {'_id': message.chat.id})
+            Thread(target=del_db, args=({'_id': message.chat.id},)).start()
             bot.send_message(message.chat.id, "👌🏻")
             bot.send_message(message.chat.id, "Çıkış başarıyla tamamlandı")
         # If not

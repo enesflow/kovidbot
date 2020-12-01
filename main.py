@@ -35,6 +35,7 @@ people = {admin: 'Enes'}
 cluster = MongoClient(os.environ['MONGO'])
 db = cluster['kovid']
 collection = db['people']
+i_collection = db['info']
 
 
 # Time
@@ -67,18 +68,18 @@ def format(number):
 # A basic function to add to database to use multithreading
 
 
-def add_db(a):
+def add_db(a, db):
     try:
-        collection.insert_one(a)
+        db.insert_one(a)
     except Exception as e:
         print(e)
 
 # A basic function to delete from database to use multithreading
 
 
-def del_db(a):
+def del_db(a, db):
     try:
-        collection.delete_many(a)
+        db.delete_many(a)
     except Exception as e:
         print(e)
 
@@ -111,14 +112,13 @@ def gethtml(url, timeout=5, rplc=""):
 print('adding people')
 for i in people:
     try:
-        Thread(target=add_db, args=({'_id': i, 'name': people[i]},)).start()
+        Thread(target=add_db, args=(
+            {'_id': i, 'name': people[i]}, collection,)).start()
     except Exception as e:
         if 'duplicate key error collection' in str(e):
             pass
         else:
             bot.send_message(admin, 'Error ' + str(e))
-
-
 print('Done')
 
 # Some variables for getcovid()
@@ -167,20 +167,18 @@ def getcovid():
         # Check if the day has passed
         d = datetime.datetime.today().strftime("%d.%m.%Y")
         if d != covid_data['tarih']:
-            with open('checked.txt', 'w') as f:
-                f.write('False')
+            i_collection.update_one({'_id': 0}, {'$set': {'checked': False}})
 
         # If not
         else:
             # Check if we already checked
-            with open('checked.txt', 'r') as f:
-                checked = f.readlines()[0]
-            if checked == 'False':
+            print(i_collection.find({'_id': 0})[0])
+            if not i_collection.find_one({'_id': 0})['checked']:
                 # If not mark as checked
                 print('now')
                 now = True
-                with open('checked.txt', 'w') as f:
-                    f.write('True')
+                i_collection.update_one(
+                    {'_id': 0}, {'$set': {'checked': True}})
 
         print("Checked")
         # Return
@@ -221,7 +219,7 @@ def corona():
             # Send messages to these people using multithreading
             for i in temp:
                 Thread(target=send_multiple, args=[i['_id'], [
-                       '🦠', f'Hey {i["name"]}! Günlük Kovid 19 Tablosu Açıklandı\n{c[1]}']]).start()
+                    '🦠', f'Hey {i["name"]}! Günlük Kovid 19 Tablosu Açıklandı\n{c[1]}']]).start()
 
         # Delay
         delayfor = delay[100]
@@ -230,9 +228,7 @@ def corona():
                 if int(datetime.datetime.utcnow().hour + 3) >= int(i):
                     delayfor = delay[i]
 
-                with open('checked.txt', 'r') as f:
-                    checked = f.readlines()[0]
-                if checked == 'True':
+                if i_collection.find_one({'_id': 0})['checked']:
                     delayfor = delay[100]
             except Exception as e:
                 print(e)
@@ -457,7 +453,7 @@ def giris(message):
         else:
             # Insert user to our database
             Thread(target=add_db, args=(
-                {'_id': message.chat.id, 'name': message.from_user.first_name},)).start()
+                {'_id': message.chat.id, 'name': message.from_user.first_name}, collection,)).start()
             bot.send_message(message.chat.id, "👌🏻")
             bot.send_message(message.chat.id, "Giriş başarıyla tamamlandı")
     except Exception as e:
@@ -479,7 +475,8 @@ def cikis(message):
         # Check if the user is in our database
         if message.chat.id in ids:
             # Remove user from our database
-            Thread(target=del_db, args=({'_id': message.chat.id},)).start()
+            Thread(target=del_db, args=(
+                {'_id': message.chat.id}, collection,)).start()
             bot.send_message(message.chat.id, "👌🏻")
             bot.send_message(message.chat.id, "Çıkış başarıyla tamamlandı")
         # If not

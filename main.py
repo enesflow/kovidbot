@@ -203,7 +203,11 @@ def send_curve(id, data):
             f"{math.ceil(j) * mojis[math.floor(i / (max(temp_curve) / (len(mojis) - 1)))]}\n")
 
     # Send it
-    bot.send_message(id, res)
+    try:
+        bot.send_message(id, res)
+    except:
+        bot.send_message(
+            id, 'Bir sorunla karşılaştık. Bu sorunu çözmek için uzunluk ve genişliği biraz daha azaltmayı deneyebilirsiniz')
 
 
 def corona():

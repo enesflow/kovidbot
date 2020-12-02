@@ -219,7 +219,7 @@ def corona():
             # Send messages to these people using multithreading
             for i in temp:
                 send_multiple(
-                    [i['_id'], ['🦠', f'Hey {i["name"]}! Günlük Kovid 19 Tablosu Açıklandı\n{c[1]}']])
+                    i['_id'], ['🦠', f'Hey {i["name"]}! Günlük Kovid 19 Tablosu Açıklandı\n{c[1]}'])
 
         # Delay
         delayfor = delay[100]

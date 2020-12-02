@@ -93,6 +93,15 @@ def getdb():
         temp.append(i)
     return temp
 
+
+def checked():
+    return i_collection.find_one({'_id': 0})['checked']
+
+
+def setChecked(to=True):
+    i_collection.update_one({'_id': 0}, {'$set': {'checked': to}})
+
+
 # A function to get the covid table from the covid url
 
 
@@ -167,18 +176,17 @@ def getcovid():
         # Check if the day has passed
         d = datetime.datetime.today().strftime("%d.%m.%Y")
         if d != covid_data['tarih']:
-            i_collection.update_one({'_id': 0}, {'$set': {'checked': False}})
+            setChecked(False)
 
         # If not
         else:
             # Check if we already checked
             print(i_collection.find({'_id': 0})[0])
-            if not i_collection.find_one({'_id': 0})['checked']:
+            if not checked():
                 # If not mark as checked
                 print('now')
                 now = True
-                i_collection.update_one(
-                    {'_id': 0}, {'$set': {'checked': True}})
+                setChecked(True)
 
         print("Checked")
         # Return
@@ -232,7 +240,7 @@ def corona():
                 if int(datetime.datetime.utcnow().hour + 3) >= int(i):
                     delayfor = delay[i]
 
-                if i_collection.find_one({'_id': 0})['checked']:
+                if checked():
                     delayfor = delay[100]
             except Exception as e:
                 print(e)

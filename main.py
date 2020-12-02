@@ -396,7 +396,7 @@ def start(message):
 @ bot.message_handler(commands=["covid"])
 def covid(message):
     try:
-        send(message.chat.id, 'Grafiğiniz hazırlanılıyor')
+        send(message.chat.id, 'Grafiğiniz hazırlanılıyor...')
         h = 15  # height
         w = 8  # width
         get = 'gunluk_vaka'  # Thing to get
@@ -450,7 +450,9 @@ def covid(message):
                         send(
                             message.chat.id, f'{message.text.split()[3]} bir sayı değildir')
                         return
-
+        if w < 1 or h < 1:
+            send(message.chat.id, 'Lütfen 0 dışında bir sayı giriniz')
+            return
         Thread(None, send_curve, None, (message.chat.id,
                                         {'get': get, 'h': h, 'w': w}, )).start()
 
@@ -629,7 +631,7 @@ def inline(inline_query):
 
             j += 1
 
-        return what + res + 'n'
+        return what + "'" + res + 'n'
     try:
         r = types.InlineQueryResultArticle(
             '1',

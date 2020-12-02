@@ -218,6 +218,7 @@ def corona():
 
             # Send messages to these people using multithreading
             for i in temp:
+                cache['grafik'] = {}
                 send_multiple(
                     i['_id'], ['🦠', f'Hey {i["name"]}! Günlük Kovid 19 Tablosu Açıklandı\n{c[1]}'])
 
@@ -248,11 +249,8 @@ def send_curve(id, data):
             arrs.append(arr[i:i + value])
         return arrs
 
-    if not checked() and cache['grafik'] != {}:
-        if data['get'] in cache['grafik']:
-            all_active = cache['grafik'][data['get']]
-        else:
-            all_active = curve(get=data['get'], h=data['h'], w=data['w'])
+    if data['get'] in cache['grafik']:
+        all_active = cache['grafik'][data['get']]
     else:
         all_active = curve(get=data['get'], h=data['h'], w=data['w'])
     # Round the data

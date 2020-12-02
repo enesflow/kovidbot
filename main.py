@@ -663,7 +663,7 @@ def inline(inline_query):
 📱Benim sayemde arkadaşlarınıza en güncel kovid 19 tablosunu ve en güncel haberleri gönderebilirsiniz,
 💪Saniyeler içerisinde size istediğiniz şekilde kovid 19 grafiğini gösterebilirim
 
-🧐O zaman ne duruyorsunuz? Hemen tıklayın 👉t.me/kovidbot
+🧐O zaman ne duruyorsunuz? Hemen tıklayın 👉 t.me/kovidbot
 '''
             )
         )

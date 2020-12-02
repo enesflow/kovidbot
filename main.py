@@ -44,8 +44,11 @@ t = 5
 delay = {18: t * 10, 19: t * 5, 20: t * 2, 21: t, 100: 1000}
 delayfor = None
 
+inlines = ['tablo', 'haber']
 
 # A basic send message function to use multithreading
+
+
 def send_multiple(chat, messages):
     for i in messages:
         send(chat, i)
@@ -551,7 +554,7 @@ def tablo(inline_query):
             # Content
             types.InputTextMessageContent(
                 temp[2]['tarih'] + ' Tarihi için kovid 19 tablosu: \n' + temp[1] + '\n\nKovid 19 hakkında günlük bilgi almak için @kovidbot'),
-            thumb_url='https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/image.png?token=APVMWC6KFLK4N77RVE2BKIK7YTVYU'
+            thumb_url='https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/image.png'
         )
         # Answer the inline command
         bot.answer_inline_query(inline_query.id, [r])
@@ -562,7 +565,8 @@ def tablo(inline_query):
 
 
 @ bot.inline_handler(lambda query: query.query == 'haber')
-def tablo(inline_query):
+def haber(inline_query):
+    print(inline_query.query)
     try:
         # Api stuff
         url = ('http://newsapi.org/v2/top-headlines?'
@@ -603,6 +607,56 @@ Haberin tamamını okumak için hemen tıklayın: {shortener.dagd.short(i['url']
         bot.answer_inline_query(inline_query.id, r, cache_time=1)
     except Exception as e:
         print(e)
+
+
+@ bot.inline_handler(lambda query: query.query not in inlines or not query.query)
+def inline(inline_query):
+    def name(what):
+        temp = str(what).lower()
+        res = 'ı'
+        n = ''
+        sesli = ['e', 'i', 'ö', 'ü']
+        sessiz = ['a', 'ı', 'o', 'u']
+        j = 1
+        for i in what:
+            if i in sessiz + sesli:
+                if j == len(what):
+                    n = 'n'
+                if i in sessiz:
+                    res = n + 'ı'
+                elif i in sesli:
+                    res = n + 'i'
+
+            j += 1
+
+        return what + res + 'n'
+    try:
+        r = types.InlineQueryResultArticle(
+            '1',
+            title=f'Merhaba {inline_query.from_user.first_name}! Lütfen tablo veya haber yaz',
+            thumb_url='https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/profile-picture/tinykovidbot.png',
+            input_message_content=types.InputTextMessageContent(
+                f'''👋Merhaba Ben @kovidbot!
+
+🌐{name(inline_query.from_user.first_name)} Yardımıyla uçsuz bucaksız internette size ulaşabildim
+
+
+🤖Ben bir Telegram botuyum. 
+
+❓Ne yapabilirim?
+⚡Türkiye kovid 19 tablosu açıklandığında saniyeler içerisinde bu tabloyu sana ulaştırabilirim,
+📰En güncel kovid 19 haberlerini sana gösterebilirim,
+📱Benim sayemde arkadaşlarınıza en güncel kovid 19 tablosunu ve en güncel haberleri gönderebilirsiniz,
+💪Saniyeler içerisinde size istediğiniz şekilde kovid 19 grafiğini gösterebilirim
+
+🧐O zaman ne duruyorsunuz? Hemen tıklayın 👉t.me/kovidbot
+'''
+            )
+        )
+        bot.answer_inline_query(inline_query.id, [r], cache_time=1)
+    except Exception as e:
+        print(e)
+
 
 # Check for new messages
 

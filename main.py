@@ -55,7 +55,11 @@ def send_multiple(chat, messages):
 
 
 def send(chat, message):
-    bot.send_message(chat, message, parse_mode='Markdown')
+    if len(message) > 4096:
+        bot.send_message(
+            chat, 'Mesaj çok büyük. O yüzden mesajı gönderemiyoruz.')
+    else:
+        bot.send_message(chat, message, parse_mode='Markdown')
 
 # Function to format a number like 123456 -> 123,456
 
@@ -288,9 +292,12 @@ def curve(get='gunluk_vaka', h=15, w=8):
     api_data = gethtml(url)[::-1]
     all_active = []
 
+    j = 0
     # If we want the infected people add vaka and hasta together
     if get == 'gunluk_vaka':
         for i in api_data:
+            if j > len(api_data) + 1:
+                break
             case = (i['gunluk_hasta'].replace('.', ''))
             if not case:
                 case = 0
@@ -300,6 +307,7 @@ def curve(get='gunluk_vaka', h=15, w=8):
                 case += int(i['gunluk_vaka'].replace('.', ''))
 
             all_active.append(case)
+            j += 1
 
     # If not
     else:
@@ -450,6 +458,10 @@ def covid(message):
                         send(
                             message.chat.id, f'{message.text.split()[3]} bir sayı değildir')
                         return
+
+        if w >= 4096:
+            send(message.chat.id, 'Lütfen daha küçük sayılar giriniz')
+            return
         if w < 1 or h < 1:
             send(message.chat.id, 'Lütfen 0 dışında bir sayı giriniz')
             return

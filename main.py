@@ -52,10 +52,7 @@ def send_multiple(chat, messages):
 
 
 def send(chat, message):
-    def inner_send(chat_id, the_message):
-        bot.send_message(chat_id, the_message, parse_mode='Markdown')
-    Thread(target=inner_send, args=(chat, message,)).start()
-    time.sleep(0.01)
+    bot.send_message(chat, message, parse_mode='Markdown')
 
 # Function to format a number like 123456 -> 123,456
 

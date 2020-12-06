@@ -584,7 +584,7 @@ def haber(inline_query):
         url = ('http://newsapi.org/v2/top-headlines?'
                'q=Koronavirüs&'
                'country=tr&'
-               'apiKey=96e467029c384c26a9a57424450cbef5')
+               f'apiKey={os.environ['NEWS_API']}')
         response = requests.get(url)
         # News variable
         news = {'news': response.json()['articles']}

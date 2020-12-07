@@ -1,7 +1,7 @@
 const { MongoClient } = require("mongodb");
 
 const uri = process.env.MONGO;
-const client = new MongoClient(uri);
+const client = new MongoClient(uri, { useUnifiedTopology: true });
 client.connect();
 async function isIn(who) {
     const db = await client.db("kovid").collection("people");

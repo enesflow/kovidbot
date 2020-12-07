@@ -2,9 +2,12 @@ const TelegramBot = require("node-telegram-bot-api"),
     bot = new TelegramBot(process.env.TOKEN, {
         polling: true,
     });
+const express = require("express");
+const bodyParser = require("body-parser");
 const NewsAPI = require("newsapi");
 const moment = require("moment-timezone");
 const _ = require("lodash");
+const axios = require("axios");
 const checkCovid = require("./modules/checkCovid");
 const mongo = require("./modules/mongo");
 const helper = require("./modules/message");
@@ -14,6 +17,27 @@ const convertData = require("./modules/convertData");
 const getData = require("./modules/getData");
 const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
+
+const app = express();
+const PORT = 3000;
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
+app.post("/" + process.env.ENTER, (req, res) => {
+    const body = req.body;
+    mongo.enter(bot, { _id: body["_id"], name: body["name"] }, helper.enter);
+    res.send("Done");
+});
+app.post("/" + process.env.LEAVE, (req, res) => {
+    const body = req.body;
+    mongo.leave(bot, { _id: body["_id"], name: body["name"] }, helper.leave);
+    res.send("Done");
+});
+app.get("/" + process.env.GET, (req, res) => {
+    getPeople((people) => {
+        res.json(people);
+    });
+});
 
 Array.prototype.unique = function () {
     var a = this.concat();
@@ -42,26 +66,28 @@ bot.onText(/\/help/, (message) => {
 });
 
 bot.onText(/\/giris/, (message) => {
-    mongo.enter(
-        bot,
-        { _id: message.chat.id, name: message.from.first_name },
-        helper.enter,
-    );
+    axios.post(`http://127.0.0.1:${PORT}/${process.env.ENTER}`, {
+        _id: message.chat.id,
+        name: message.from.first_name,
+    });
 });
 
 bot.onText(/\/cikis/, (message) => {
-    mongo.leave(
-        bot,
-        { _id: message.chat.id, name: message.from.first_name },
-        helper.leave,
-    );
+    axios.post(`http://127.0.0.1:${PORT}/${process.env.LEAVE}`, {
+        _id: message.chat.id,
+        name: message.from.first_name,
+    });
 });
 
 bot.onText(/\/list/, (message) => {
     let allPeople = [];
     if (message.chat.id == process.env.ADMIN) {
-        getPeople((people) => {
-            people.forEach((person) => {
+        axios({
+            method: "get",
+            url: `http://127.0.0.1:${PORT}/${process.env.GET}`,
+            responseType: "json",
+        }).then((people) => {
+            people["data"].forEach((person) => {
                 allPeople.push(JSON.stringify(person));
             });
             bot.sendMessage(message.chat.id, allPeople.join("\n"));
@@ -234,3 +260,7 @@ bot.on("inline_query", (query) => {
 });
 bot.on("polling_error", console.log);
 checkCovid(2, bot);
+
+app.listen(PORT, () => {
+    console.log("App listening on port", PORT);
+});

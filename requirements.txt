@@ -1,5 +1,0 @@
-pytelegrambotapi
-bs4
-pyshorteners
-pymongo
-dnspython

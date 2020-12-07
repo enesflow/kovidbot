@@ -1,6 +1,7 @@
 const TelegramBot = require("node-telegram-bot-api"),
-    port = process.env.PORT || 443,
-    host = '0.0.0.0';
+    bot = new TelegramBot("1225556791:AAH8VssD8XFCObDamyqFuZEpFgz7acFwtMg", {
+        polling: true,
+    });
 const NewsAPI = require("newsapi");
 const moment = require("moment-timezone");
 const _ = require("lodash");
@@ -11,6 +12,7 @@ const { getPeople } = require("./modules/mongo");
 const longMessage = require("./modules/longMessage");
 const convertData = require("./modules/convertData");
 const getData = require("./modules/getData");
+const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
 
 Array.prototype.unique = function () {
@@ -23,9 +25,6 @@ Array.prototype.unique = function () {
 
     return a;
 };
-
-const TOKEN = process.env.TOKEN;
-const bot = new TelegramBot(TOKEN, { polling: true });
 
 const queryies = ["haber", "tablo"];
 
@@ -91,7 +90,7 @@ bot.onText(/\/covid/, (message, match) => {
             ? 8
             : parseInt(message.text.split(" ")[3]) || 8;
     let allData = [];
-    getFullData(get, (data) => {
+    const sendGrafik = (data) => {
         allData = data;
         allData = _.chunk(
             allData,
@@ -116,7 +115,15 @@ bot.onText(/\/covid/, (message, match) => {
                 ].repeat(Math.max(day, 1)) + "\n";
         });
         bot.sendMessage(message.chat.id, msg);
-    });
+    };
+    if (cache.cache["grafik"][get]) {
+        sendGrafik(cache.cache["grafik"][get]);
+    } else {
+        getFullData(get, (data) => {
+            sendGrafik(data);
+            cache.setGrafik(get, data);
+        });
+    }
 });
 
 bot.on("inline_query", (query) => {
@@ -135,9 +142,9 @@ bot.on("inline_query", (query) => {
         ]);
     } else {
         if (data == "tablo") {
-            getData((temp) => {
+            function sendCovidTable(table) {
                 let isToday = "";
-                const covid = convertData(temp[0]);
+                const covid = convertData(table);
 
                 if (
                     covid["date"] == moment().tz("Turkey").format("DD.MM.YYYY")
@@ -154,7 +161,19 @@ bot.on("inline_query", (query) => {
                         message_text: longMessage.daily(covid, true),
                     },
                 ]);
-            });
+            }
+            function getAndSendCovidData() {
+                if (cache["grafik"]) {
+                    const covid = cache["grafik"];
+                    sendCovidTable(covid);
+                } else {
+                    getData((temp) => {
+                        const covid = temp[0];
+                        sendCovidTable(covid);
+                    });
+                }
+            }
+            getAndSendCovidData();
         }
         if (data == "haber") {
             let news = [];
@@ -213,5 +232,5 @@ bot.on("inline_query", (query) => {
         }
     }
 });
-
+bot.on("polling_error", console.log);
 checkCovid(2, bot);

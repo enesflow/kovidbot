@@ -1,6 +1,7 @@
 const moment = require("moment-timezone");
 const mongo = require("./mongo");
 const sendCovidTable = require("./sendCovidTable");
+const cache = require("./cache");
 const getData = require("./getData");
 
 function checkCovid(time, bot) {
@@ -10,10 +11,12 @@ function checkCovid(time, bot) {
             const date = json[0]["tarih"];
             const today = moment().tz("Turkey").format("DD.MM.YYYY");
             mongo.getChecked((checked) => {
+                cache.setTablo(json[0]);
                 if (date == today && !checked) {
                     mongo.setChecked(true, () => {});
                     console.log("Now");
                     sendCovidTable(json[0], bot);
+                    cache.flushGrafik();
                 } else {
                     console.log("Not Now");
                     console.log("Date:", date, today);

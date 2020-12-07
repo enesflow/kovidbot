@@ -10,7 +10,6 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "axios": "^0.21.0",
         "jssoup": "0.0.12",
         "lodash": "^4.17.20",
         "moment": "^2.29.1",

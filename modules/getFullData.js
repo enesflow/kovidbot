@@ -19,9 +19,9 @@ function getFullData(get, callback) {
                 } else {
                     let specData = 0;
                     if (day[get]) {
-                        specData = day[get];
+                        specData = parseInt(day[get].replace(".", ""));
                     }
-                    rawData.push(parseInt(specData));
+                    rawData.push(specData);
                 }
             });
         });

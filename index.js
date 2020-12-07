@@ -1,4 +1,6 @@
-const TelegramBot = require("node-telegram-bot-api");
+const TelegramBot = require("node-telegram-bot-api"),
+    port = process.env.PORT || 443,
+    host = '0.0.0.0';
 const NewsAPI = require("newsapi");
 const moment = require("moment-timezone");
 const _ = require("lodash");

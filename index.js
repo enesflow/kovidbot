@@ -17,12 +17,14 @@ const convertData = require("./modules/convertData");
 const getData = require("./modules/getData");
 const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
+const cors = require("cors");
 
 const app = express();
 const PORT = process.env.PORT || 8001;
 const URL = process.env.baseURL || "http://localhost:" + PORT;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 
 app.post("/" + process.env.ENTER, (req, res) => {
     const body = req.body;

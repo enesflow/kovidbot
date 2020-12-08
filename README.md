@@ -10,7 +10,7 @@ Bu botta https://covid19.saglik.gov.tr/TR-66935/genel-koronavirus-tablosu.html d
 
 Bu bot normalde 15-16 dakikada bir kontrol ediyor
 
-Eğer saat geç olmuş ve vaka sayısı daha açıklanmamış ise bu süre kademeli olarak 5 saniyeye kadar inebiliyor
+Eğer saat geç olmuş ve vaka sayısı daha açıklanmamış ise bu süre kademeli olarak 10 saniyeye kadar inebiliyor
 
 Database için MongoDB Atlas kullanıyoruz
 

@@ -218,7 +218,9 @@ bot.on("inline_query", (query) => {
                             type: "article",
                             title: oneNew["title"],
                             description: oneNew["source"]["name"],
-                            thumb_url: oneNew["urlToImage"],
+                            thumb_url:
+                                oneNew["urlToImage"] ||
+                                "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
                             message_text: `${oneNew["description"]}\n\nHaberin tamamına ulaşmak için tıklayın: ${oneNew["url"]}\n\nBu haber https://t.me/kovidbot aracılığıyla gönderildi`,
                         });
                     });
@@ -237,7 +239,9 @@ bot.on("inline_query", (query) => {
                                     type: "article",
                                     title: oneNew["title"],
                                     description: oneNew["source"]["name"],
-                                    thumb_url: oneNew["urlToImage"],
+                                    thumb_url:
+                                        oneNew["urlToImage"] ||
+                                        "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
                                     message_text: `${oneNew["description"]}\n\nHaberin tamamına ulaşmak için tıklayın: ${oneNew["url"]}\n\nBu haber https://t.me/kovidbot aracılığıyla gönderildi`,
                                 });
                             });

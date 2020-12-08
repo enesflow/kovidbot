@@ -19,7 +19,7 @@ const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 8001;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -66,14 +66,14 @@ bot.onText(/\/help/, (message) => {
 });
 
 bot.onText(/\/giris/, (message) => {
-    axios.post(`http://127.0.0.1:${PORT}/${process.env.ENTER}`, {
+    axios.post(`/${process.env.ENTER}`, {
         _id: message.chat.id,
         name: message.from.first_name,
     });
 });
 
 bot.onText(/\/cikis/, (message) => {
-    axios.post(`http://127.0.0.1:${PORT}/${process.env.LEAVE}`, {
+    axios.post(`/${process.env.LEAVE}`, {
         _id: message.chat.id,
         name: message.from.first_name,
     });
@@ -84,7 +84,7 @@ bot.onText(/\/list/, (message) => {
     if (message.chat.id == process.env.ADMIN) {
         axios({
             method: "get",
-            url: `http://127.0.0.1:${PORT}/${process.env.GET}`,
+            url: `/${process.env.GET}`,
             responseType: "json",
         }).then((people) => {
             people["data"].forEach((person) => {

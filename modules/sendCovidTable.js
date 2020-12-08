@@ -1,10 +1,10 @@
 const convertData = require("./convertData");
 const longMessage = require("./longMessage");
-const mongo = require("./mongo");
+const axios = require("axios");
 
 function sendCovidTable(data, bot) {
-    mongo.getPeople((people) => {
-        people.forEach((person) => {
+    axios.get("https://koved.herokuapp.com/get-secret").then((people) => {
+        people["data"].forEach((person) => {
             bot.sendSticker(
                 person["_id"],
                 "CAACAgEAAxkBAAEBqY5fzly7WaIfk3X8BIU32hpYC25MGwACJAgAAuN4BAABeDMQjC5YwUgeBA",

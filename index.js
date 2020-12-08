@@ -20,6 +20,7 @@ const getFullData = require("./modules/getFullData");
 
 const app = express();
 const PORT = process.env.PORT || 8001;
+const URL = process.env.baseURL || "http://localhost:" + PORT;
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
@@ -66,14 +67,14 @@ bot.onText(/\/help/, (message) => {
 });
 
 bot.onText(/\/giris/, (message) => {
-    axios.post(`/${process.env.ENTER}`, {
+    axios.post(`${URL}/${process.env.ENTER}`, {
         _id: message.chat.id,
         name: message.from.first_name,
     });
 });
 
 bot.onText(/\/cikis/, (message) => {
-    axios.post(`/${process.env.LEAVE}`, {
+    axios.post(`${URL}/${process.env.LEAVE}`, {
         _id: message.chat.id,
         name: message.from.first_name,
     });
@@ -84,7 +85,7 @@ bot.onText(/\/list/, (message) => {
     if (message.chat.id == process.env.ADMIN) {
         axios({
             method: "get",
-            url: `/${process.env.GET}`,
+            url: `${URL}/${process.env.GET}`,
             responseType: "json",
         }).then((people) => {
             people["data"].forEach((person) => {
@@ -262,5 +263,5 @@ bot.on("polling_error", console.log);
 checkCovid(2, bot);
 
 app.listen(PORT, () => {
-    console.log("App listening on port", PORT);
+    console.log(URL, "App listening on port", PORT);
 });

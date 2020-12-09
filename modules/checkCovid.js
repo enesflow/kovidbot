@@ -40,7 +40,7 @@ function getDelay(callback) {
     mongo.getChecked((checked) => {
         console.log("Checked is", checked);
         const time = [
-            [100, 60 * 15],
+            [100, 60 * 5],
             [18, 80],
             [19, 40],
             [20, 20],

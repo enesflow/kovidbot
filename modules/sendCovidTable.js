@@ -3,7 +3,7 @@ const longMessage = require("./longMessage");
 const axios = require("axios");
 
 function sendCovidTable(data, bot) {
-    axios.get("https://koved.herokuapp.com/get-secret").then((people) => {
+    axios.get("https://kovidbot.herokuapp.com/get-secret").then((people) => {
         people["data"].forEach((person) => {
             bot.sendSticker(
                 person["_id"],

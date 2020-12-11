@@ -3,7 +3,7 @@
 Açıklanan Kovid 19 Tablosunu gören ilk kişi siz olmak ister misiniz?
 O zaman hemen [@kovidbot](https://t.me/kovidbot) a gidin.
 
-Yardım için [@kovidbot](https://t.me/kovidbot) a /help veya /yardim yazabilirsiniz
+Yardım için [@kovidbot](https://t.me/kovidbot) a /help yazabilirsiniz
 
 #### Eğer bir developersanız
 

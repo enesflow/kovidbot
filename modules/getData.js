@@ -14,7 +14,8 @@ function getData(callback) {
                 JSON.parse(
                     scripts[scripts.length - 1].text
                         .slice(36)
-                        .replace(";//]]>", ""),
+                        .split(";//]]>")
+                        .join(""),
                 ),
             ).then((j) => {
                 callback(j);

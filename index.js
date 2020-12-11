@@ -1,7 +1,10 @@
 const TelegramBot = require("node-telegram-bot-api"),
-    bot = new TelegramBot(process.env.TOKEN, {
-        polling: true,
-    });
+    bot = new TelegramBot(
+        "1225556791:AAHbNh-YhOxbB4Z6ebRkqvKG7Fy4fyQNPRc" || process.env.TOKEN,
+        {
+            polling: true,
+        },
+    );
 const express = require("express");
 const bodyParser = require("body-parser");
 const NewsAPI = require("newsapi");
@@ -103,7 +106,24 @@ bot.onText(/\/list/, (message) => {
     }
 });
 
-bot.onText(/\/covid/, (message, match) => {
+bot.onText(/\/toplam/, (message) => {
+    if (cache.cache["tablo"]) {
+        bot.sendMessage(
+            message.chat.id,
+            longMessage.total(cache.cache["tablo"]),
+        );
+    } else {
+        getFullData((data) => {
+            cache.setTablo(data[0]);
+            bot.sendMessage(
+                message.chat.id,
+                longMessage.total(cache.cache["tablo"]),
+            );
+        });
+    }
+});
+
+bot.onText(/\/grafik/, (message, match) => {
     let msg = "";
     const get =
         "gunluk_" +

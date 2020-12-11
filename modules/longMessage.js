@@ -7,26 +7,30 @@ function help(name) {
     🛑 Günlük Kovid 19 Tablosunu almayı durdurmak için /cikis yazın
     🦠Kovid 19 Türkiye grafiği:
     🙂Varsayılan kullanım:
-        Varsayılan kullanım için /covid yazın
+        Varsayılan kullanım için /grafik yazın
         Varsayılan kullanım;
         1️⃣5️⃣ Uzunluğu 15 blok
         0️⃣8️⃣ Genişliği 8 blok olmak üzere
         😷🤒 Türkiyenin günlük vaka grafiğini gönderir
         _Günlük vaka ve hasta toplamını gönderir_
     ⚙️Gelişmiş Kullanım:
-        Gelişmiş kullanım için /covid yazın ve gerekli bilgileri girin
-        /covid <almak istediğiniz bilgi> <uzunluk> <genişlik>
+        Gelişmiş kullanım için /grafik yazın ve gerekli bilgileri girin
+        /grafik <almak istediğiniz bilgi> <uzunluk> <genişlik>
         ℹ️Eğer bir bilgiyi varsayılan olarak kullanmak istiyorsanız - yazabilirsini
         ❓Örnek kullanım:
-            /covid vaka 25 5
-            /covid iyilesen 50 15
-            /covid vaka - 10
+            /grafik vaka 25 5
+            /grafik iyilesen 50 15
+            /grafik vaka - 10
         💁Alabileceğiniz bilgiler:
             vaka _Bu günlük vaka ve günlük hastanın toplam sayısını verir_
             vefat _Bu günlük vefat sayısını verir_
             iyilesen _Bu günlük iyileşen sayısını verir_
             test _Bu günlük test sayısını verir_
-            
+    
+    ➕Toplam sayılar:
+    🇹🇷Toplam sayıları gösterir
+    ⌨Toplam sayıları almak için /toplam yazın
+
     ⌨Satır içi komutlar:
     ℹSatır içi komutlar nelerdir?
         🔴Özel sohbetler veya gruplarda Satır içi komutlar kullanarak bot ile iletişime geçebilirsiniz
@@ -45,7 +49,7 @@ function help(name) {
 
 function spread(name) {
     return `👋Merhaba Ben @kovidbot!
-🌐${name} Arkadaşımızın yardımıyla uçsuz bucaksız internette size ulaşabildim
+🌐${name} arkadaşımızın yardımıyla uçsuz bucaksız internette size ulaşabildim
 
 🤖Ben bir Telegram botuyum. 
 
@@ -78,8 +82,25 @@ function daily(data, isSpread) {
     }
 }
 
+function total(data) {
+    return `
+🧪 Toplam test sayısı ${data["toplam_test"].split(".").join(",")}
+😞 Toplam vaka sayısı ${data["toplam_hasta"].split(".").join(",")}
+💀 Toplam vefat sayısı ${data["toplam_vefat"].split(".").join(",")}
+☺️ Toplam iyilesen sayısı ${data["toplam_iyilesen"].split(".").join(",")}
+🤒 Aktif vaka sayısı ${beautify(
+        parseInt(data["toplam_hasta"].split(".").join("")) -
+            parseInt(data["toplam_iyilesen"].split(".").join("")),
+    )}
+😭 Ağır hasta sayısı ${data["agir_hasta_sayisi"].split(".").join(",")}
+🏥 Yoğun bakım doluluk oranı %${data["eriskin_yogun_bakim_doluluk_orani"]}
+🏥 Ventilator doluluk oranı %${data["ventilator_doluluk_orani"]}
+`;
+}
+
 module.exports = {
     help: help,
     spread: spread,
     daily: daily,
+    total: total,
 };

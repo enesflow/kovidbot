@@ -1,5 +1,4 @@
 const getData = require("./getData");
-const _ = require("lodash");
 
 function getFullData(get, callback) {
     getData((res) => {
@@ -8,18 +7,22 @@ function getFullData(get, callback) {
             res.reverse().forEach((day) => {
                 if (get == "gunluk_vaka") {
                     let cases = 0;
-                    if (day["gunluk_hasta"].replace(".", "")) {
-                        cases = parseInt(day["gunluk_hasta"].replace(".", ""));
+                    if (day["gunluk_hasta"].split(".").join("")) {
+                        cases = parseInt(
+                            day["gunluk_hasta"].split(".").join(""),
+                        );
                     }
 
-                    if (day["gunluk_vaka"].replace(".", "")) {
-                        cases += parseInt(day["gunluk_vaka"].replace(".", ""));
+                    if (day["gunluk_vaka"].split(".").join("")) {
+                        cases += parseInt(
+                            day["gunluk_vaka"].split(".").join(""),
+                        );
                     }
                     rawData.push(parseInt(cases));
                 } else {
                     let specData = 0;
                     if (day[get]) {
-                        specData = parseInt(day[get].replace(".", ""));
+                        specData = parseInt(day[get].split(".").join(""));
                     }
                     rawData.push(specData);
                 }

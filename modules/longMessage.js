@@ -90,7 +90,8 @@ function total(data) {
 ☺️ Toplam iyilesen sayısı ${data["toplam_iyilesen"].split(".").join(",")}
 🤒 Aktif vaka sayısı ${beautify(
         parseInt(data["toplam_hasta"].split(".").join("")) -
-            parseInt(data["toplam_iyilesen"].split(".").join("")),
+            parseInt(data["toplam_iyilesen"].split(".").join("")) -
+parseInt(data["toplam_vefat"].split(".").join(""))
     )}
 😭 Ağır hasta sayısı ${data["agir_hasta_sayisi"].split(".").join(",")}
 🏥 Yoğun bakım doluluk oranı %${data["eriskin_yogun_bakim_doluluk_orani"]}

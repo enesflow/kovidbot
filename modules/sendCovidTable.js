@@ -7,11 +7,7 @@ const _ = require("lodash");
 function sendCovidTable(data, bot) {
     mongo.getAds((ads) => {
         axios
-            .get(
-                process.env.baseURL ||
-                    ("http://localhost:" + process.env.PORT || 8001) +
-                        process.env.GET,
-            )
+            .get("https://kovidbot.herokuapp.com/" + process.env.GET)
             .then((people) => {
                 people["data"].forEach((person) => {
                     const chatId = person["_id"];

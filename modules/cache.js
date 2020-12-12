@@ -1,6 +1,7 @@
 let cache = {
     tablo: undefined,
     grafik: {},
+    ads: [],
 };
 
 const setTablo = (to) => {
@@ -13,6 +14,10 @@ const flushGrafik = () => {
 
 const setGrafik = (get, to) => {
     cache["grafik"][get] = to;
+};
+
+const setAds = (to) => {
+    cache["ads"] = to;
 };
 
 module.exports = {

@@ -1,9 +1,7 @@
 const TelegramBot = require("node-telegram-bot-api"),
-    bot = new TelegramBot(process.env.TOKEN,
-        {
-            polling: true,
-        },
-    );
+    bot = new TelegramBot("1225556791:AAE4E8A-qiaCD3w8mBZN4mNC7pnRorEJuVg", {
+        polling: true,
+    });
 const express = require("express");
 const bodyParser = require("body-parser");
 const NewsAPI = require("newsapi");
@@ -20,6 +18,7 @@ const getData = require("./modules/getData");
 const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
 const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 8001;
@@ -30,7 +29,16 @@ app.use(cors());
 
 app.post("/" + process.env.ENTER, (req, res) => {
     const body = req.body;
-    mongo.enter(bot, { _id: body["_id"], name: body["name"] }, helper.enter);
+    mongo.enter(
+        bot,
+        {
+            _id: body["_id"],
+            name: body["name"],
+            time: moment().utc().valueOf(),
+            pro: false,
+        },
+        helper.enter,
+    );
     res.send("Done");
 });
 app.post("/" + process.env.LEAVE, (req, res) => {

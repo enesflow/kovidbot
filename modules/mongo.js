@@ -23,6 +23,7 @@ async function getPeople(callback) {
     Promise.resolve(db.find({}))
         .then((res) => {
             res.toArray((err, result) => {
+                console.log(result);
                 callback(result);
             });
         })
@@ -94,10 +95,19 @@ async function getChecked(callback) {
         .catch((err) => console.log("ERROR: ", err));
 }
 
+async function getAds(callback) {
+    const db = await client.db("kovid").collection("ads");
+    db.find({ active: true }).toArray((err, arr) => {
+        if (err) console.dir(err);
+        callback(arr);
+    });
+}
+
 module.exports = {
     getPeople: getPeople,
     enter: enter,
     leave: leave,
     setChecked: setChecked,
     getChecked: getChecked,
+    getAds: getAds,
 };

@@ -23,16 +23,18 @@ function sendCovidTable(data, bot) {
                     ).then(() => {
                         if (!person["pro"]) {
                             const ad = _.sample(ads);
-                            Promise.resolve(
-                                bot.sendPhoto(chatId, ad["image"], {
-                                    caption: ad["title"],
-                                }),
-                            ).then(() => {
-                                bot.sendMessage(
-                                    chatId,
-                                    ad["message"].join("\n"),
-                                );
-                            });
+                            if (ad) {
+                                Promise.resolve(
+                                    bot.sendPhoto(chatId, ad["image"], {
+                                        caption: ad["title"],
+                                    }),
+                                ).then(() => {
+                                    bot.sendMessage(
+                                        chatId,
+                                        ad["message"].join("\n"),
+                                    );
+                                });
+                            }
                         }
                     });
                 });

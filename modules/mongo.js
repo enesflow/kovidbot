@@ -1,4 +1,5 @@
 const { MongoClient } = require("mongodb");
+require("dotenv").config();
 
 const uri = process.env.MONGO;
 const client = new MongoClient(uri, { useUnifiedTopology: true });
@@ -43,7 +44,6 @@ async function enter(bot, data, callback) {
                         } else {
                             callback(bot, data, true);
                         }
-                        db.close;
                     });
                 } else {
                     callback(bot, data, false);
@@ -66,7 +66,6 @@ async function leave(bot, data, callback) {
                         } else {
                             callback(bot, data, true);
                         }
-                        db.close;
                     });
                 } else {
                     callback(bot, data, false);
@@ -103,6 +102,28 @@ async function getAds(callback) {
     });
 }
 
+async function addAd(bot, data, callback) {
+    const db = await client.db("kovid").collection("ads");
+    Promise.resolve(db.find(data))
+        .then((res) => {
+            res.toArray((err, result) => {
+                if (result.length == 0) {
+                    db.insertOne(data, (err, res) => {
+                        if (err) {
+                            callback(bot, data, false);
+                            console.log("ERROR: ", err);
+                        } else {
+                            callback(bot, data, true);
+                        }
+                    });
+                } else {
+                    callback(bot, data, false);
+                }
+            });
+        })
+        .catch((err) => console.log("ERROR: ", err));
+}
+
 module.exports = {
     getPeople: getPeople,
     enter: enter,
@@ -110,4 +131,5 @@ module.exports = {
     setChecked: setChecked,
     getChecked: getChecked,
     getAds: getAds,
+    addAd: addAd,
 };

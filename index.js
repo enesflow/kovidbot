@@ -18,6 +18,7 @@ const getData = require("./modules/getData");
 const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
 const cors = require("cors");
+const { v4: uuidv4 } = require("uuid");
 require("dotenv").config();
 
 const app = express();
@@ -46,6 +47,14 @@ app.post("/" + process.env.LEAVE, (req, res) => {
     mongo.leave(bot, { _id: body["_id"], name: body["name"] }, helper.leave);
     res.send("Done");
 });
+
+app.post("/" + process.env.ADDAD, (req, res) => {
+    let body = req.body;
+    body["_id"] = uuidv4(body);
+    mongo.addAd(bot, body, (x) => console.log(x));
+    res.send("Done");
+});
+
 app.get("/" + process.env.GET, (req, res) => {
     getPeople((people) => {
         res.json(people);

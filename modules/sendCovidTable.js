@@ -20,10 +20,10 @@ function sendCovidTable(data, bot) {
                             ),
                         ).then(() => {
                             if (!person["pro"]) {
-                                const ad = _.sample(ads);
+                                const ad = _.sample(ads["data"]);
                                 if (ad) {
                                     Promise.resolve(
-                                        bot.sendPhoto(chatId, ad["image"], {
+                                        bot.sendPhoto(chatId, ad["imgurl"], {
                                             caption: ad["message"].join("\n"),
                                         }),
                                     );

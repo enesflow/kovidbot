@@ -1,7 +1,10 @@
 const TelegramBot = require("node-telegram-bot-api"),
-    bot = new TelegramBot(process.env.TOKEN, {
-        polling: true,
-    });
+    bot = new TelegramBot(
+        "1225556791:AAHrj9lDSAsnKJio8gbEuBcC-wOhi5L9EJ8" || process.env.TOKEN,
+        {
+            polling: true,
+        },
+    );
 const express = require("express");
 const bodyParser = require("body-parser");
 const NewsAPI = require("newsapi");
@@ -11,7 +14,7 @@ const axios = require("axios");
 const checkCovid = require("./modules/checkCovid");
 const mongo = require("./modules/mongo");
 const helper = require("./modules/message");
-const { getPeople } = require("./modules/mongo");
+const { getPeople, getAds } = require("./modules/mongo");
 const longMessage = require("./modules/longMessage");
 const convertData = require("./modules/convertData");
 const getData = require("./modules/getData");
@@ -53,6 +56,12 @@ app.post("/" + process.env.ADDAD, (req, res) => {
     body["_id"] = uuidv4(body);
     mongo.addAd(bot, body, (x) => console.log(x));
     res.send("Done");
+});
+
+app.get("/" + process.env.SEEAD, (req, res) => {
+    getAds((ads) => {
+        res.json(ads);
+    });
 });
 
 app.get("/" + process.env.GET, (req, res) => {

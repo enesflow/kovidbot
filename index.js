@@ -1,5 +1,5 @@
 const TelegramBot = require("node-telegram-bot-api"),
-    bot = new TelegramBot(process.env.TOKEN, {
+    bot = new TelegramBot("1225556791:AAGLO6Duws5l5W_r3DET8nLFS957_mDlwfw", {
         polling: true,
     });
 const express = require("express");
@@ -18,7 +18,6 @@ const getData = require("./modules/getData");
 const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
 const cors = require("cors");
-var SHA1 = require("crypto-js/sha1");
 require("dotenv").config();
 
 const app = express();
@@ -62,7 +61,7 @@ app.get("/" + process.env.GETADS + process.env.SECRET, (req, res) => {
 
 app.post("/" + process.env.ADDAD + process.env.SECRET, (req, res) => {
     let body = req.body;
-    body["_id"] = SHA1(body).toString();
+    body["_id"] = JSON.stringify(body);
     body["active"] = true;
     mongo.addAd(bot, body, (bot, data, ok, err) => {
         console.log(data);
@@ -76,7 +75,7 @@ app.post("/" + process.env.ADDAD + process.env.SECRET, (req, res) => {
 
 app.post("/" + process.env.REMOVEAD + process.env.SECRET, (req, res) => {
     let body = req.body;
-    body["_id"] = SHA1(body).toString();
+    body["_id"] = JSON.stringify(body);
     mongo.removeAd(bot, body, (bot, data, ok, err) => {
         if (ok) {
             res.json({ ok: true });

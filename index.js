@@ -75,8 +75,7 @@ app.post("/" + process.env.ADDAD + process.env.SECRET, (req, res) => {
 
 app.post("/" + process.env.REMOVEAD + process.env.SECRET, (req, res) => {
     let body = req.body;
-    body["_id"] = JSON.stringify(body);
-    mongo.removeAd(bot, body, (bot, data, ok, err) => {
+    mongo.removeAd(bot, body,(bot, data, ok, err) => {
         if (ok) {
             res.json({ ok: true });
         } else {

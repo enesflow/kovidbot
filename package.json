@@ -6,6 +6,9 @@
   "repository": "https://github.com/EnxGitHub/kovidbot",
   "author": "EnxGitHub",
   "license": "You can not use this code",
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
     "axios": "^0.21.0",
     "body-parser": "^1.19.0",
@@ -19,6 +22,7 @@
     "mongodb": "^3.6.3",
     "newsapi": "^2.4.1",
     "node-fetch": "^2.6.1",
+    "node-telegram-bot-api": "^0.50.0",
     "yarn": "^1.22.10"
   }
 }

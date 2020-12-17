@@ -1,28 +1,24 @@
 {
-    "name": "nodejs-telegram",
-    "version": "1.0.0",
-    "description": "",
-    "main": "index.js",
-    "scripts": {
-        "start": "node index.js"
-    },
-    "keywords": [],
-    "author": "",
-    "license": "ISC",
-    "dependencies": {
-        "axios": "^0.21.0",
-        "body-parser": "^1.19.0",
-        "cors": "^2.8.5",
-        "dotenv": "^8.2.0",
-        "express": "^4.17.1",
-        "jssoup": "0.0.12",
-        "lodash": "^4.17.20",
-        "moment": "^2.29.1",
-        "moment-timezone": "^0.5.32",
-        "mongodb": "^3.6.3",
-        "newsapi": "^2.4.1",
-        "node-fetch": "^2.6.1",
-        "node-telegram-bot-api": "^0.50.0",
-        "uuid": "^8.3.2"
-    }
+  "name": "kovidbot",
+  "version": "2.6",
+  "description": "Kovid 19 günlük vaka tablosu ve diğer birçok şey için bir Telegram Botu",
+  "main": "index.js",
+  "repository": "https://github.com/EnxGitHub/kovidbot",
+  "author": "EnxGitHub",
+  "license": "You can not use this code",
+  "dependencies": {
+    "axios": "^0.21.0",
+    "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
+    "crypto-js": "^4.0.0",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "jssoup": "^0.0.12",
+    "lodash": "^4.17.20",
+    "moment-timezone": "^0.5.32",
+    "mongodb": "^3.6.3",
+    "newsapi": "^2.4.1",
+    "node-fetch": "^2.6.1",
+    "yarn": "^1.22.10"
+  }
 }

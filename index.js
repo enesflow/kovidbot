@@ -18,7 +18,7 @@ const getData = require("./modules/getData");
 const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
 const cors = require("cors");
-const { v4: uuidv4 } = require("uuid");
+var SHA1 = require("crypto-js/sha1");
 require("dotenv").config();
 
 const app = express();
@@ -28,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
-app.post("/" + process.env.ENTER, (req, res) => {
+app.post("/" + process.env.ENTER + process.env.SECRET, (req, res) => {
     const body = req.body;
     mongo.enter(
         bot,
@@ -42,28 +42,47 @@ app.post("/" + process.env.ENTER, (req, res) => {
     );
     res.send("Done");
 });
-app.post("/" + process.env.LEAVE, (req, res) => {
+app.post("/" + process.env.LEAVE + process.env.SECRET, (req, res) => {
     const body = req.body;
     mongo.leave(bot, { _id: body["_id"], name: body["name"] }, helper.leave);
     res.send("Done");
 });
 
-app.post("/" + process.env.ADDAD, (req, res) => {
-    let body = req.body;
-    body["_id"] = uuidv4(body);
-    mongo.addAd(bot, body, (x) => console.log(x));
-    res.send("Done");
+app.get("/" + process.env.GET + process.env.SECRET, (req, res) => {
+    getPeople((people) => {
+        res.json(people);
+    });
 });
 
-app.get("/" + process.env.SEEAD, (req, res) => {
+app.get("/" + process.env.GETADS + process.env.SECRET, (req, res) => {
     getAds((ads) => {
         res.json(ads);
     });
 });
 
-app.get("/" + process.env.GET, (req, res) => {
-    getPeople((people) => {
-        res.json(people);
+app.post("/" + process.env.ADDAD + process.env.SECRET, (req, res) => {
+    let body = req.body;
+    body["_id"] = SHA1(body).toString();
+    body["active"] = true;
+    mongo.addAd(bot, body, (bot, data, ok, err) => {
+        console.log(data);
+        if (ok) {
+            res.json({ ok: true });
+        } else {
+            res.json({ ok: false, err: err });
+        }
+    });
+});
+
+app.post("/" + process.env.REMOVEAD + process.env.SECRET, (req, res) => {
+    let body = req.body;
+    body["_id"] = SHA1(body).toString();
+    mongo.removeAd(bot, body, (bot, data, ok, err) => {
+        if (ok) {
+            res.json({ ok: true });
+        } else {
+            res.json({ ok: false, err: err });
+        }
     });
 });
 
@@ -94,14 +113,14 @@ bot.onText(/\/help/, (message) => {
 });
 
 bot.onText(/\/giris/, (message) => {
-    axios.post(`${URL}/${process.env.ENTER}`, {
+    axios.post(`${URL}/${process.env.ENTER + process.env.SECRET}`, {
         _id: message.chat.id,
         name: message.from.first_name,
     });
 });
 
 bot.onText(/\/cikis/, (message) => {
-    axios.post(`${URL}/${process.env.LEAVE}`, {
+    axios.post(`${URL}/${process.env.LEAVE + process.env.SECRET}`, {
         _id: message.chat.id,
         name: message.from.first_name,
     });
@@ -112,7 +131,7 @@ bot.onText(/\/list/, (message) => {
     if (message.chat.id == process.env.ADMIN) {
         axios({
             method: "get",
-            url: `${URL}/${process.env.GET}`,
+            url: `${URL}/${process.env.GET + process.env.SECRET}`,
             responseType: "json",
         }).then((people) => {
             people["data"].forEach((person) => {

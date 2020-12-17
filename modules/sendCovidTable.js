@@ -6,10 +6,18 @@ require("dotenv").config();
 
 function sendCovidTable(data, bot) {
     axios
-        .get("https://kovidbot.herokuapp.com/" + process.env.SEEAD)
+        .get(
+            "https://kovidbot.herokuapp.com" +
+                process.env.SEEAD +
+                process.env.SECRET,
+        )
         .then((ads) => {
             axios
-                .get("https://kovidbot.herokuapp.com/" + process.env.GET)
+                .get(
+                    "https://kovidbot.herokuapp.com" +
+                        process.env.GET +
+                        process.env.SECRET,
+                )
                 .then((people) => {
                     people["data"].forEach((person) => {
                         const chatId = person["_id"];

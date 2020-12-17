@@ -24,7 +24,6 @@ async function getPeople(callback) {
     Promise.resolve(db.find({}))
         .then((res) => {
             res.toArray((err, result) => {
-                console.log(result);
                 callback(result);
             });
         })
@@ -96,7 +95,7 @@ async function getChecked(callback) {
 
 async function getAds(callback) {
     const db = await client.db("kovid").collection("ads");
-    db.find({ active: true }).toArray((err, arr) => {
+    db.find({}).toArray((err, arr) => {
         if (err) console.dir(err);
         callback(arr);
     });
@@ -110,18 +109,56 @@ async function addAd(bot, data, callback) {
                 if (result.length == 0) {
                     db.insertOne(data, (err, res) => {
                         if (err) {
-                            callback(bot, data, false);
+                            callback(bot, data, false, err);
                             console.log("ERROR: ", err);
                         } else {
-                            callback(bot, data, true);
+                            callback(bot, data, true, undefined);
                         }
                     });
                 } else {
-                    callback(bot, data, false);
+                    callback(
+                        bot,
+                        data,
+                        false,
+                        "The ad is already in the database",
+                    );
                 }
             });
         })
-        .catch((err) => console.log("ERROR: ", err));
+        .catch((err) => {
+            console.log("ERROR: ", err);
+            callback(bot, data, false, err);
+        });
+}
+async function removeAd(bot, data, callback) {
+    const db = await client.db("kovid").collection("ads");
+    Promise.resolve(db.find(data))
+        .then((res) => {
+            console.log(res);
+            res.toArray((err, result) => {
+                if (result.length != 0) {
+                    db.deleteOne(data, (err, res) => {
+                        if (err) {
+                            callback(bot, data, false, err);
+                            console.log("ERROR: ", err);
+                        } else {
+                            callback(bot, data, true, undefined);
+                        }
+                    });
+                } else {
+                    callback(
+                        bot,
+                        data,
+                        false,
+                        "There are no ads that match these requirements ",
+                    );
+                }
+            });
+        })
+        .catch((err) => {
+            console.log("ERROR: ", err);
+            callback(bot, data, false, err);
+        });
 }
 
 module.exports = {
@@ -132,4 +169,5 @@ module.exports = {
     getChecked: getChecked,
     getAds: getAds,
     addAd: addAd,
+    removeAd: removeAd,
 };

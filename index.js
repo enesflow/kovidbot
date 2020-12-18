@@ -1,5 +1,5 @@
 const TelegramBot = require("node-telegram-bot-api"),
-    bot = new TelegramBot('1347961551:AAGVQhShnnn9L4ASzGpFRnI6VTZPBKnH8t0' || process.env.TOKEN, {
+    bot = new TelegramBot(process.env.TOKEN, {
         polling: true,
     });
 const express = require("express");
@@ -19,7 +19,6 @@ const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
 const cors = require("cors");
 require("dotenv").config();
-
 const app = express();
 const PORT = process.env.PORT || 8001;
 const URL = process.env.baseURL || "http://localhost:" + PORT;
@@ -75,7 +74,7 @@ app.post("/" + process.env.ADDAD + process.env.SECRET, (req, res) => {
 
 app.post("/" + process.env.REMOVEAD + process.env.SECRET, (req, res) => {
     let body = req.body;
-    mongo.removeAd(bot, body,(bot, data, ok, err) => {
+    mongo.removeAd(bot, body, (bot, data, ok, err) => {
         if (ok) {
             res.json({ ok: true });
         } else {

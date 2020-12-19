@@ -1,3 +1,4 @@
+require("dotenv").config();
 const TelegramBot = require("node-telegram-bot-api"),
     bot = new TelegramBot(process.env.TOKEN, {
         polling: true,
@@ -18,7 +19,6 @@ const getData = require("./modules/getData");
 const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
 const cors = require("cors");
-require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 8001;
 const URL = process.env.baseURL || "http://localhost:" + PORT;

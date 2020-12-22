@@ -125,7 +125,7 @@ bot.onText(/\/cikis/, (message) => {
 
 bot.onText(/\/list/, (message) => {
     let allPeople = [];
-    if (message.chat.id == process.env.ADMIN) {
+    if (message.from.username == process.env.ADMIN) {
         axios({
             method: "get",
             url: `${URL}/${process.env.GET + process.env.SECRET}`,

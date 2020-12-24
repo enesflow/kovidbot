@@ -61,15 +61,18 @@ app.get("/" + process.env.GETADS + process.env.SECRET, (req, res) => {
         res.json(ads);
     });
 });
+app.get("/" + process.env.GETDATA + process.env.SECRET + "/", (req, res) => {
+    getData((data) => {
+        res.json(data);
+    });
+});
 
 app.get(
     "/" + process.env.GETDATA + process.env.SECRET + "/:get",
     (req, res) => {
         if (cache.cache["grafik"][req.params.get]) {
             res.json(cache.cache["grafik"][req.params.get]);
-            console.log("...");
         } else {
-            console.log("a");
             getFullData(req.params.get, (data) => {
                 cache.setGrafik(req.params.get, data);
                 res.json(data);

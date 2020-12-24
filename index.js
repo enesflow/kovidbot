@@ -26,6 +26,10 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
 
+app.get("/", (req, res) => {
+    res.send("Hello World");
+});
+
 app.post("/" + process.env.ENTER + process.env.SECRET, (req, res) => {
     const body = req.body;
     mongo.enter(
@@ -57,6 +61,15 @@ app.get("/" + process.env.GETADS + process.env.SECRET, (req, res) => {
         res.json(ads);
     });
 });
+
+app.get(
+    "/" + process.env.GETDATA + process.env.SECRET + "/:get",
+    (req, res) => {
+        getFullData(req.params.get, (data) => {
+            res.json(data);
+        });
+    },
+);
 
 app.post("/" + process.env.ADDAD + process.env.SECRET, (req, res) => {
     let body = req.body;

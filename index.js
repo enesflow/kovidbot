@@ -65,11 +65,29 @@ app.get("/" + process.env.GETADS + process.env.SECRET, (req, res) => {
 app.get(
     "/" + process.env.GETDATA + process.env.SECRET + "/:get",
     (req, res) => {
-        getFullData(req.params.get, (data) => {
-            res.json(data);
-        });
+        if (cache.cache["grafik"][req.params.get]) {
+            res.json(cache.cache["grafik"][req.params.get]);
+            console.log("...");
+        } else {
+            console.log("a");
+            getFullData(req.params.get, (data) => {
+                cache.setGrafik(req.params.get, data);
+                res.json(data);
+            });
+        }
     },
 );
+
+app.get("/" + process.env.GETTODAY + process.env.SECRET, (req, res) => {
+    if (cache.cache["tablo"]) {
+        res.json(cache.cache["tablo"]);
+    } else {
+        getData((data) => {
+            cache.setTablo(data[0]);
+            res.json(data[0]);
+        });
+    }
+});
 
 app.post("/" + process.env.ADDAD + process.env.SECRET, (req, res) => {
     let body = req.body;

@@ -63,7 +63,12 @@ app.get("/" + process.env.GETADS + process.env.SECRET, (req, res) => {
 });
 app.get("/" + process.env.GETDATA + process.env.SECRET + "/", (req, res) => {
     getData((data) => {
-        res.json(data);
+        if (cache.cache["full"]) {
+            res.json(cache.cache["full"]);
+        } else {
+            cache.setFull(data);
+            res.json(data);
+        }
     });
 });
 

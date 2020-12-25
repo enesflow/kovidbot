@@ -17,6 +17,7 @@ function checkCovid(time, bot) {
                     console.log("Now");
                     sendCovidTable(json[0], bot);
                     cache.flushGrafik();
+                    cache.flushFull();
                 } else {
                     console.log("Not Now");
                     console.log("Date:", date, today);

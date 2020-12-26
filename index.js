@@ -240,7 +240,12 @@ bot.onText(/\/grafik/, (message, match) => {
                     ) || 0
                 ].repeat(Math.max(day, 1)) + "\n";
         });
-        bot.sendMessage(message.chat.id, msg);
+        bot.sendMessage(
+            message.chat.id,
+            `${msg}
+Daha detaylı bilgi için [@kovidbot websitesini](https://kovidbot.web.app) ziyaret edebilirsiniz.`,
+            { parse_mode: "Markdown", disable_web_page_preview: true },
+        );
     };
     if (cache.cache["grafik"][get]) {
         sendGrafik(cache.cache["grafik"][get]);

@@ -41,13 +41,16 @@ app.get("/" + process.env.GETNEWS + process.env.SECRET, async (req, res) => {
         });
         response["articles"].forEach((oneNew) => {
             news.push({
+                id: String(response["articles"].indexOf(oneNew)),
+                type: "article",
                 title: oneNew["title"],
                 description: oneNew["source"]["name"],
                 thumb_url:
                     oneNew["urlToImage"] ||
                     "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
                 content: oneNew["description"],
-                url: oneNew["url"],
+                siteurl: oneNew["url"],
+                message_text: `${oneNew["description"]}\n\nHaberin tamamına ulaşmak için tıklayın: ${oneNew["url"]}\n\nBu haber https://t.me/kovidbot aracılığıyla gönderildi`,
             });
         });
         const response2 = await newsapi.v2.topHeadlines({
@@ -56,13 +59,19 @@ app.get("/" + process.env.GETNEWS + process.env.SECRET, async (req, res) => {
         });
         response2["articles"].forEach((oneNew) => {
             news.push({
+                id: String(
+                    response2["articles"].indexOf(oneNew) +
+                        response["totalResults"],
+                ),
+                type: "article",
                 title: oneNew["title"],
                 description: oneNew["source"]["name"],
                 thumb_url:
                     oneNew["urlToImage"] ||
                     "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
                 content: oneNew["description"],
-                url: oneNew["url"],
+                siteurl: oneNew["url"],
+                message_text: `${oneNew["description"]}\n\nHaberin tamamına ulaşmak için tıklayın: ${oneNew["url"]}\n\nBu haber https://t.me/kovidbot aracılığıyla gönderildi`,
             });
         });
         if (news.length === 0) {
@@ -377,6 +386,7 @@ bot.on("inline_query", (query) => {
                                 type: "article",
                                 title: oneNew["title"],
                                 description: oneNew["source"]["name"],
+                                siteurl: oneNew["url"],
                                 thumb_url:
                                     oneNew["urlToImage"] ||
                                     "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
@@ -399,6 +409,7 @@ bot.on("inline_query", (query) => {
                                         type: "article",
                                         title: oneNew["title"],
                                         description: oneNew["source"]["name"],
+                                        siteurl: oneNew["url"],
                                         thumb_url:
                                             oneNew["urlToImage"] ||
                                             "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",

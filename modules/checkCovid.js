@@ -7,6 +7,7 @@ const getData = require("./getData");
 function checkCovid(time, bot) {
     const interval = setInterval(() => {
         console.log("Checking");
+        cache.setNews([]);
         getData((json) => {
             const date = json[0]["tarih"];
             const today = moment().tz("Turkey").format("DD.MM.YYYY");

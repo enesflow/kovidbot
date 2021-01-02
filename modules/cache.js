@@ -3,6 +3,7 @@ let cache = {
     grafik: {},
     full: undefined,
     ads: [],
+    news: [],
 };
 
 const setTablo = (to) => {
@@ -29,6 +30,10 @@ const setAds = (to) => {
     cache["ads"] = to;
 };
 
+const setNews = (to) => {
+    cache["news"] = to;
+};
+
 module.exports = {
     cache: cache,
     setTablo: setTablo,
@@ -36,4 +41,5 @@ module.exports = {
     flushGrafik: flushGrafik,
     setFull: setFull,
     flushFull: flushFull,
+    setNews: setNews,
 };

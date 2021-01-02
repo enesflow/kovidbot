@@ -30,7 +30,59 @@ app.get("/", (req, res) => {
     res.send("Hello World");
 });
 
-app.post("/" + process.env.ENTER + process.env.SECRET, (req, res) => {
+app.get("/" + process.env.GETNEWS + process.env.SECRET, async (req, res) => {
+    if (cache.cache["news"].length !== 0) {
+        res.json(cache.cache["news"]);
+    } else {
+        const news = [];
+        const response = await newsapi.v2.topHeadlines({
+            q: "korona",
+            country: "tr",
+        });
+        response["articles"].forEach((oneNew) => {
+            news.push({
+                title: oneNew["title"],
+                description: oneNew["source"]["name"],
+                thumb_url:
+                    oneNew["urlToImage"] ||
+                    "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
+                content: oneNew["description"],
+                url: oneNew["url"],
+            });
+        });
+        const response2 = await newsapi.v2.topHeadlines({
+            q: "kovid",
+            country: "tr",
+        });
+        response2["articles"].forEach((oneNew) => {
+            news.push({
+                title: oneNew["title"],
+                description: oneNew["source"]["name"],
+                thumb_url:
+                    oneNew["urlToImage"] ||
+                    "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
+                content: oneNew["description"],
+                url: oneNew["url"],
+            });
+        });
+        if (news.length === 0) {
+            news.push({
+                id: "1",
+                type: "article",
+                title:
+                    "Şu an için kovid 19 salgını hakkında güncel haber bulunmamaktadır",
+                description: "@kovidbot",
+                thumb_url:
+                    "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/profile-picture/tinykovidbot.png",
+                message_text: longMessage.spread(query.from.first_name),
+            });
+        }
+        res.json(news);
+        cache.setNews(news);
+    }
+});
+
+app.post("/" + process.env.ENTER + process.env.SECRET, async (req, res) => {
     const body = req.body;
     mongo.enter(
         bot,
@@ -307,63 +359,71 @@ bot.on("inline_query", (query) => {
             getAndSendCovidData();
         }
         if (data == "haber") {
-            let news = [];
-            newsapi.v2
-                .topHeadlines({
-                    q: "korona",
-                    country: "tr",
-                })
-                .then((response) => {
-                    response["articles"].forEach((oneNew) => {
-                        news.push({
-                            id: String(response["articles"].indexOf(oneNew)),
-                            type: "article",
-                            title: oneNew["title"],
-                            description: oneNew["source"]["name"],
-                            thumb_url:
-                                oneNew["urlToImage"] ||
-                                "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
-                            message_text: `${oneNew["description"]}\n\nHaberin tamamına ulaşmak için tıklayın: ${oneNew["url"]}\n\nBu haber https://t.me/kovidbot aracılığıyla gönderildi`,
-                        });
-                    });
-                    newsapi.v2
-                        .topHeadlines({
-                            q: "kovid",
-                            country: "tr",
-                        })
-                        .then((response2) => {
-                            response2["articles"].forEach((oneNew) => {
-                                news.push({
-                                    id: String(
-                                        response2["articles"].indexOf(oneNew) +
-                                            response["totalResults"],
-                                    ),
-                                    type: "article",
-                                    title: oneNew["title"],
-                                    description: oneNew["source"]["name"],
-                                    thumb_url:
-                                        oneNew["urlToImage"] ||
-                                        "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
-                                    message_text: `${oneNew["description"]}\n\nHaberin tamamına ulaşmak için tıklayın: ${oneNew["url"]}\n\nBu haber https://t.me/kovidbot aracılığıyla gönderildi`,
-                                });
+            if (cache.cache["news"].length !== 0) {
+                bot.answerInlineQuery(query.id, cache.cache["news"]);
+            } else {
+                let news = [];
+                newsapi.v2
+                    .topHeadlines({
+                        q: "korona",
+                        country: "tr",
+                    })
+                    .then((response) => {
+                        response["articles"].forEach((oneNew) => {
+                            news.push({
+                                id: String(
+                                    response["articles"].indexOf(oneNew),
+                                ),
+                                type: "article",
+                                title: oneNew["title"],
+                                description: oneNew["source"]["name"],
+                                thumb_url:
+                                    oneNew["urlToImage"] ||
+                                    "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
+                                message_text: `${oneNew["description"]}\n\nHaberin tamamına ulaşmak için tıklayın: ${oneNew["url"]}\n\nBu haber https://t.me/kovidbot aracılığıyla gönderildi`,
                             });
-                            if (news.length === 0) {
-                                news.push({
-                                    id: "1",
-                                    type: "article",
-                                    title:
-                                        "Şu an için kovid 19 salgını hakkında güncel haber bulunmamaktadır",
-                                    description: "@kovidbot",
-                                    thumb_url:
-                                        "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/profile-picture/tinykovidbot.png",
-                                    message_text: longMessage.spread(
-                                        query.from.first_name,
-                                    ),
-                                });
-                            }
-                            bot.answerInlineQuery(query.id, news);
                         });
-                });
+                        newsapi.v2
+                            .topHeadlines({
+                                q: "kovid",
+                                country: "tr",
+                            })
+                            .then((response2) => {
+                                response2["articles"].forEach((oneNew) => {
+                                    news.push({
+                                        id: String(
+                                            response2["articles"].indexOf(
+                                                oneNew,
+                                            ) + response["totalResults"],
+                                        ),
+                                        type: "article",
+                                        title: oneNew["title"],
+                                        description: oneNew["source"]["name"],
+                                        thumb_url:
+                                            oneNew["urlToImage"] ||
+                                            "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/noimage.png",
+                                        message_text: `${oneNew["description"]}\n\nHaberin tamamına ulaşmak için tıklayın: ${oneNew["url"]}\n\nBu haber https://t.me/kovidbot aracılığıyla gönderildi`,
+                                    });
+                                });
+                                if (news.length === 0) {
+                                    news.push({
+                                        id: "1",
+                                        type: "article",
+                                        title:
+                                            "Şu an için kovid 19 salgını hakkında güncel haber bulunmamaktadır",
+                                        description: "@kovidbot",
+                                        thumb_url:
+                                            "https://raw.githubusercontent.com/EnxGitHub/kovidbot/main/profile-picture/tinykovidbot.png",
+                                        message_text: longMessage.spread(
+                                            query.from.first_name,
+                                        ),
+                                    });
+                                }
+                                bot.answerInlineQuery(query.id, news);
+                                cache.setNews[news];
+                            });
+                    });
+            }
         }
     }
 });

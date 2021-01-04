@@ -28,6 +28,7 @@ async function getPeople(callback) {
             });
         })
         .catch((err) => console.log("ERROR: ", err));
+    
 }
 
 async function enter(bot, data, callback) {

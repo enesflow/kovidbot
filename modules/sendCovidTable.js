@@ -26,7 +26,7 @@ async function sendCovidTable(data, bot) {
         const ad = _.sample(ads["data"]);
         if (ad) {
             bot.sendPhoto(person["_id"], ad["imgurl"], {
-                caption: ad["message"].join("\n"),
+                caption: ad["message"],
             });
         }
     });

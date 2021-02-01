@@ -23,6 +23,7 @@
         "newsapi": "^2.4.1",
         "node-fetch": "^2.6.1",
         "node-telegram-bot-api": "^0.50.0",
+        "sharp": "^0.27.1",
         "yarn": "^1.22.10"
     },
     "devDependencies": {

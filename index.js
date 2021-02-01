@@ -18,13 +18,48 @@ const convertData = require("./modules/convertData");
 const getData = require("./modules/getData");
 const cache = require("./modules/cache");
 const getFullData = require("./modules/getFullData");
+const request = require('request');
+const fs = require('fs');
+const sharp = require('sharp')
+
 const cors = require("cors");
+const { exception } = require("console");
 const app = express();
 const PORT = process.env.PORT || 8001;
 const URL = process.env.baseURL || "http://localhost:" + PORT;
+
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(express.static("public"))
+
+async function download(url, dest) {
+
+    const file = fs.createWriteStream(dest);
+
+    await new Promise((resolve, reject) => {
+        request({
+            uri: url,
+            gzip: true,
+        })
+            .pipe(file)
+            .on('finish', async () => {
+                resolve();
+            })
+            .on('error', (error) => {
+                reject(error);
+            });
+    })
+        .catch((error) => {
+            console.log(`Something happened: ${error}`);
+        });
+}
+
+if (!fs.existsSync("./public/newsImages")) {
+    fs.mkdirSync("./public/newsImages", { recursive: true });
+}
+
 
 app.get("/", (req, res) => {
     res.send("Hello World");
@@ -32,9 +67,9 @@ app.get("/", (req, res) => {
 
 app.get("/" + process.env.GETNEWS + process.env.SECRET, async (req, res) => {
     if (cache.cache["news"].length !== 0) {
-        res.json(cache.cache["news"]);
+        var news = (cache.cache["news"]);
     } else {
-        const news = [];
+        var news = [];
         const response = await newsapi.v2.topHeadlines({
             q: "korona",
             country: "tr",
@@ -61,7 +96,7 @@ app.get("/" + process.env.GETNEWS + process.env.SECRET, async (req, res) => {
             news.push({
                 id: String(
                     response2["articles"].indexOf(oneNew) +
-                        response["totalResults"],
+                    response["totalResults"],
                 ),
                 type: "article",
                 title: oneNew["title"],
@@ -86,9 +121,29 @@ app.get("/" + process.env.GETNEWS + process.env.SECRET, async (req, res) => {
                 message_text: longMessage.spread(query.from.first_name),
             });
         }
-        res.json(news);
-        cache.setNews(news);
+        await Promise.all(news.map(i => {
+            return download(i["thumb_url"], "./public/newsImages/i" + i["id"] + ".jpg")
+        }))
+        for (let i of news) {
+            sharp("./public/newsImages/i" + i["id"] + ".jpg").resize(300).toFile("./public/newsImages/" + i["id"] + ".jpg")
+        }
+        setTimeout(() => {
+            for (let i of news) {
+                try {
+                    fs.unlinkSync("./public/newsImages/i" + i["id"] + ".jpg")
+
+                }
+                catch {
+
+                }
+            }
+
+        }, 500);
+
     }
+    console.log('News')
+    res.json(news);
+    cache.setNews(news);
 });
 
 app.post("/" + process.env.ENTER + process.env.SECRET, async (req, res) => {

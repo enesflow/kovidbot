@@ -23,7 +23,6 @@ const fs = require('fs');
 const sharp = require('sharp')
 
 const cors = require("cors");
-const { exception } = require("console");
 const app = express();
 const PORT = process.env.PORT || 8001;
 const URL = process.env.baseURL || "http://localhost:" + PORT;

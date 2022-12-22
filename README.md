@@ -1,5 +1,7 @@
 # @kovidbot
 
+(deprecated)
+
 Açıklanan Kovid 19 Tablosunu gören ilk kişi siz olmak ister misiniz?
 O zaman hemen [@kovidbot](https://t.me/kovidbot) a gidin.
 
